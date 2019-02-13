@@ -15,6 +15,7 @@ d3.selection.prototype.createFlow = function init(options) {
 		let width = 0;
 		let height = 0;
     let radius = 3
+    let rectHeight = 0
 		const marginTop = 16;
 		const marginBottom = 0;
 		const marginLeft = 16;
@@ -43,6 +44,8 @@ d3.selection.prototype.createFlow = function init(options) {
 		let $svg = null;
 		let $axis = null;
 		let $vis = null;
+    let $stops = null;
+    let $labels = null
 
 		// helper functions
 
@@ -51,7 +54,6 @@ d3.selection.prototype.createFlow = function init(options) {
 			let r = d3.interpolate(0, length); //Set up interpolation from 0 to the path length
 			return function(t){
 				let point = path.getPointAtLength(r(t)); // Get the next point along the path
-				console.log({point})
         return `translate(${point.x}, ${point.y})`
 			}
     }
@@ -60,13 +62,41 @@ d3.selection.prototype.createFlow = function init(options) {
 			// called once at start
 			init() {
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
+        const $allLabels = $svg.append('g').attr('class', 'g-labels')
+
 				const $g = $svg.append('g');
 
 				// offset chart for margins
-				$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
+				//$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
 
 				// create axis
 				$axis = $svg.append('g').attr('class', 'g-axis');
+
+        const $allStops = $svg.append('g').attr('class', 'g-stops')
+
+        const bpKeys = Object.keys(breakPoints)
+        const popped = bpKeys.pop()
+
+        $stops = $allStops.selectAll('.stop-group')
+          .data(bpKeys)
+          .enter()
+          .append('g')
+          .attr('class', 'stop-group')
+          .attr('data-bp', (d, i) => bpKeys[i])
+
+        $stops
+          .append('rect')
+
+
+        $labels = $allLabels.selectAll('.label')
+          .data(bpKeys)
+          .enter()
+          .append('text')
+          .attr('class', 'label')
+          .text(d => d === 'highSchool' ? 'high school' : d)
+          .attr('alignment-baseline', 'hanging')
+          .attr('text-anchor', 'middle')
+
 
 				// setup viz group
 				$vis = $g.append('g').attr('class', 'g-vis');
@@ -83,7 +113,7 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('width', width + marginLeft + marginRight)
 					.attr('height', height + marginTop + marginBottom);
 
-        stopSectionWidth = width * 0.1
+        stopSectionWidth = width * 0.2
 
         scaleX
           .range([width - stopSectionWidth, 0])
@@ -93,12 +123,24 @@ d3.selection.prototype.createFlow = function init(options) {
           .range([width - stopSectionWidth, 0])
           .domain([1, 4])
 
+        rectHeight = height * 0.05
+
+        // scale up the stop boxes
+        $stops.selectAll('rect')
+          .attr('width', stopSectionWidth)
+          .attr('height', rectHeight)
+          .attr('transform', (d, i) => `translate(0, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+
+        $labels
+          .attr('transform', (d, i) => `translate(${width / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+
+
 				return Chart;
 			},
 			// update scales and render chart
 			render() {
-        let sub = data.slice(0, 500)
-        //let sub = data.filter(d => d.recruit_year == 2003)
+        //let sub = data.slice(0, 1000)
+        let sub = data.filter(d => d.recruit_year == 2003)
 
         const groups = $vis.selectAll('.player')
           .data(sub)
