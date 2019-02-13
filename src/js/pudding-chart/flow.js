@@ -14,7 +14,8 @@ d3.selection.prototype.createFlow = function init(options) {
 		// dimension stuff
 		let width = 0;
 		let height = 0;
-		const marginTop = 0;
+    let radius = 3
+		const marginTop = 16;
 		const marginBottom = 0;
 		const marginLeft = 16;
 		const marginRight = 16;
@@ -44,6 +45,16 @@ d3.selection.prototype.createFlow = function init(options) {
 		let $vis = null;
 
 		// helper functions
+
+    function translateAlong(path){
+			let length = path.getTotalLength(); // Get the length of the path
+			let r = d3.interpolate(0, length); //Set up interpolation from 0 to the path length
+			return function(t){
+				let point = path.getPointAtLength(r(t)); // Get the next point along the path
+				console.log({point})
+        return `translate(${point.x}, ${point.y})`
+			}
+    }
 
 		const Chart = {
 			// called once at start
@@ -86,16 +97,19 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
-        //let sub = data.slice(0, 500)
-        let sub = data.filter(d => d.recruit_year == 2003)
-        console.log({sub})
+        let sub = data.slice(0, 500)
+        //let sub = data.filter(d => d.recruit_year == 2003)
 
-        const paths = $vis.selectAll('.path__player')
+        const groups = $vis.selectAll('.player')
           .data(sub)
           .enter()
+          .append('g')
+          .attr('class', 'player')
+
+        const paths = groups
           .append('path')
           .attr('class', d => `path__player path__player-${d.name}`)
-          .style('stroke', d => colorScale(d.rank))
+          //.style('stroke', d => colorScale(d.rank))
           .attr('d', function(d){
             let hsStopW = d.highSchool == 0 || d.highSchool == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let collStopW = d.coll == 0 || d.coll == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
@@ -105,7 +119,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
             const path = [
               // move over based on HS rank
-              "M", [stopSectionWidth + scaleX(d.rank), 0],
+              "M", [stopSectionWidth + scaleX(d.rank), marginTop],
               // move straight down to the top of the HS section
               "L", [hsStopW, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
               // move straight to the top of the college section
@@ -120,6 +134,25 @@ d3.selection.prototype.createFlow = function init(options) {
             const joined = path.join(" ")
             return joined
           })
+
+        const dots = groups
+          .append('circle')
+          .attr('r', radius)
+          .style('fill', d => colorScale(d.rank))
+          .attr('transform', d => `translate(${stopSectionWidth + scaleX(d.rank)}, ${marginTop})`)
+          .transition()
+          .duration(2000)
+          .delay((d, i) => i * 100)
+          .ease(d3.easeCubicInOut)
+          .attrTween('transform', function(d){
+            //const parent = d3.select(this).node().parentNode
+            const sibling = d3.select(this).node().previousSibling
+            //const path = parent.childNodes[0]
+            let response = translateAlong(sibling)
+
+            return response//translateAlong(sibling)
+          })
+
 				return Chart;
 			},
 			// get / set data
