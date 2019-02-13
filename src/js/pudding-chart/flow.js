@@ -49,6 +49,7 @@ d3.selection.prototype.createFlow = function init(options) {
 		let $vis = null;
     let $stops = null;
     let $labels = null
+    let $annotations = null
 
 		// helper functions
 
@@ -80,6 +81,8 @@ d3.selection.prototype.createFlow = function init(options) {
         const $allStops = $svg.append('g').attr('class', 'g-stops')
 
         const bpKeys = Object.keys(breakPoints)
+
+        $annotations = $g.append('g').attr('class', 'g-annotations')
         //const popped = bpKeys.pop()
 
         // $stops = $allStops.selectAll('.stop-group')
@@ -217,6 +220,35 @@ d3.selection.prototype.createFlow = function init(options) {
 
             return response//translateAlong(sibling)
           })
+
+          const annotationData = [{
+            rank: 1,
+            text: '#1'
+          }, {
+            rank: 100,
+            text: '#100'
+          }]
+          console.log({annotationData})
+
+          const rankAnn = $annotations
+            .selectAll('.annotations__rank')
+            .data(annotationData)
+            .enter()
+            .append('g')
+            .attr('class', 'annotations__rank')
+            .attr('transform', d =>`translate(${scaleX(d.rank)}, ${breakPoints.highSchool})`)
+            .raise()
+            
+          rankAnn
+            .append('circle')
+            .attr('r', radius + 1)
+
+          rankAnn
+            .append('text')
+            .text(d => d.text)
+            .attr('alignment-baseline', 'baseline')
+            .attr('text-anchor', d => d.rank === 1 ? 'start' : 'end')
+            .attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
 
 
 
