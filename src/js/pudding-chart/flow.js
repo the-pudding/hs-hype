@@ -86,44 +86,40 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
-        let sub = data.slice(0, 500)
+        //let sub = data.slice(0, 500)
+        let sub = data.filter(d => d.recruit_year == 2003)
         console.log({sub})
 
         const paths = $vis.selectAll('.path__player')
           .data(sub)
           .enter()
           .append('path')
-          .attr('class', 'path__player')
+          .attr('class', d => `path__player path__player-${d.name}`)
           .style('stroke', d => colorScale(d.rank))
           .attr('d', function(d){
-            let hsStopW = d.highSchool == 0 ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let collStopH = d.highSchool > 0 ? height * breakPoints.college : height * breakPoints.highSchool
+            let hsStopW = d.highSchool == 0 || d.highSchool == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let collStopW = d.coll == 0 || d.coll == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let draftStopW = d.draft == 0 || d.draft == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.draft_pk)
-            let draftStopH = d.coll > 0 ? height * breakPoints.draft : height * breakPoints.college
             let rookieStopW = d.rookie == 0 || d.rookie == ""? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.draft_pk)
-            let rookieStopH = d.draft > 0 ? height * breakPoints.rookie : height * breakPoints.draft
             let successStopW = d.success == 0 || d.success == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleXSuccess(d.success)
-            let successStopH = d.draft > 0 ? height * breakPoints.success : height * breakPoints.draft
+
             const path = [
               // move over based on HS rank
               "M", [stopSectionWidth + scaleX(d.rank), 0],
               // move straight down to the top of the HS section
-              "L", [hsStopW, height * breakPoints.highSchool],
+              "L", [hsStopW, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
               // move straight to the top of the college section
-              "L", [collStopW, collStopH],
-              // move straight to the top of the draft section
-              "L", [draftStopW, draftStopH],
-              // move straight to the rookie section
-              "L", [rookieStopW, rookieStopH],
-              // move to success section
-              "L", [successStopW, successStopH]
+              "L", [collStopW, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
+              // // move straight to the top of the draft section
+              "L", [draftStopW, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
+              // // move straight to the rookie section
+              "L", [rookieStopW, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
+              // // move to success section
+              "L", [successStopW, Math.min(height * breakPoints.success, height * breakPoints[d.highest])]
             ]
             const joined = path.join(" ")
             return joined
           })
-
-        console.log({sub})
 				return Chart;
 			},
 			// get / set data
