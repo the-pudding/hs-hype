@@ -36,7 +36,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
 		// scales
 		const scaleX = d3.scaleLinear();
-    const scaleXSuccess = d3.scaleLinear()
+    const scaleXUnderdogs = d3.scaleLinear()
 		const scaleY = null;
 
     const colorScale = d3.scaleSequential()
@@ -123,15 +123,15 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('width', width + marginLeft + marginRight)
 					.attr('height', height + marginTop + marginBottom);
 
-        stopSectionWidth = 0
+        stopSectionWidth = width * 0.25
 
         scaleX
-          .range([width - stopSectionWidth, 0])
+          .range([0, width - stopSectionWidth])
           .domain([1, 100])
 
-        scaleXSuccess
-          .range([width - stopSectionWidth, 0])
-          .domain([1, 4])
+        scaleXUnderdogs
+          .range([stopSectionWidth, 0])
+          .domain([0, 1])
 
         rectHeight = height * 0.05
 
@@ -164,12 +164,13 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('class', d => `path__player path__player-${d.name}`)
           //.style('stroke', d => colorScale(d.rank))
           .attr('d', function(d){
-            let hsStopW = d.highSchool == 0 || d.highSchool == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let collStopW = d.coll == 0 || d.coll == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let draftStopW = d.draft == 0 || d.draft == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let rookieStopW = d.rookie == 0 || d.rookie == ""? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let successStopW = d.success == 0 || d.success == "" ? stopSectionWidth + scaleX(d.rank) : stopSectionWidth + scaleXSuccess(d.success)
-            let xPos = scaleX(d.rank)
+            let xPos = null
+            if (d.top == 0){
+              xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
+            } else xPos = scaleX(d.rank)
+
+            //scaleX(d.rank)
+            //console.log(xPos)
 
             const path = [
               // move over based on HS rank
@@ -195,9 +196,15 @@ d3.selection.prototype.createFlow = function init(options) {
         const dots = groups
           .append('circle')
           .attr('r', radius)
-          .style('fill', '#F46C23')//d => colorScale(d.rank))
+          .style('fill', d => d.top == 0 ? '#5371AB' : '#F46C23')//d => colorScale(d.rank))
           .attr('opacity', 0.3)
-          .attr('transform', d => `translate(${scaleX(d.rank)}, ${breakPoints.highSchool})`)
+          .attr('transform', d => {
+            let xPos = null
+            if (d.top == 0){
+              xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
+            } else xPos = scaleX(d.rank)
+
+            return `translate(${xPos}, ${breakPoints.highSchool})`})
           .transition()
           .duration(5000)
           .delay((d, i) => Math.random() * 25000)
@@ -210,6 +217,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
             return response//translateAlong(sibling)
           })
+
 
 
 				return Chart;
