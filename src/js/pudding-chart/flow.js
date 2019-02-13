@@ -20,11 +20,11 @@ d3.selection.prototype.createFlow = function init(options) {
 		const marginRight = 16;
 
     const breakPoints = {
-      highSchool: 1/5,
-      college: 2/5,
-      draft: 3/5,
-      rookie: 4/5,
-      success: 5/5
+      highSchool: 1/6,
+      college: 2/6,
+      draft: 3/6,
+      rookie: 4/6,
+      success: 5/6
     }
 
     let stopSectionWidth = null
@@ -33,6 +33,10 @@ d3.selection.prototype.createFlow = function init(options) {
 		const scaleX = d3.scaleLinear();
     const scaleXSuccess = d3.scaleLinear()
 		const scaleY = null;
+
+    const colorScale = d3.scaleSequential()
+      .domain([100, 1])
+      .interpolator(d3.interpolatePlasma)
 
 		// dom elements
 		let $svg = null;
@@ -75,14 +79,14 @@ d3.selection.prototype.createFlow = function init(options) {
           .domain([1, 100])
 
         scaleXSuccess
-          .range([width, 0])
+          .range([width - stopSectionWidth, 0])
           .domain([1, 4])
 
 				return Chart;
 			},
 			// update scales and render chart
 			render() {
-        let sub = data.slice(0, 100)
+        let sub = data.slice(0, 500)
         console.log({sub})
 
         const paths = $vis.selectAll('.path__player')
@@ -90,6 +94,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .enter()
           .append('path')
           .attr('class', 'path__player')
+          .style('stroke', d => colorScale(d.rank))
           .attr('d', function(d){
             let hsStopW = d.highSchool == 0 ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let collStopH = d.highSchool > 0 ? height * breakPoints.college : height * breakPoints.highSchool
