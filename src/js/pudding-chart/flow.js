@@ -139,8 +139,9 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
-        //let sub = data.slice(0, 1000)
-        let sub = data.filter(d => d.recruit_year == 2003)
+        //let sub = data.slice(0, 500)
+        let sub = data.filter(d => d.recruit_year >= 2005)
+        console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
           .data(sub)
@@ -155,8 +156,8 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('d', function(d){
             let hsStopW = d.highSchool == 0 || d.highSchool == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let collStopW = d.coll == 0 || d.coll == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let draftStopW = d.draft == 0 || d.draft == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.draft_pk)
-            let rookieStopW = d.rookie == 0 || d.rookie == ""? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.draft_pk)
+            let draftStopW = d.draft == 0 || d.draft == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
+            let rookieStopW = d.rookie == 0 || d.rookie == ""? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let successStopW = d.success == 0 || d.success == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleXSuccess(d.success)
 
             const path = [
