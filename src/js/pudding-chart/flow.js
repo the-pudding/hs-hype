@@ -20,6 +20,7 @@ d3.selection.prototype.createFlow = function init(options) {
 		const marginBottom = 16;
 		const marginLeft = 16;
 		const marginRight = 16;
+    const padding = 8
 
     const breakPoints = {
       highSchool: 0/7,
@@ -33,6 +34,30 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     let stopSectionWidth = null
+
+    function bounce(h) {
+      if (!arguments.length) h = 0.25;
+      var b0 = 1 - h,
+          b1 = b0 * (1 - b0) + b0,
+          b2 = b0 * (1 - b1) + b1,
+          x0 = 2 * Math.sqrt(h),
+          x1 = x0 * Math.sqrt(h),
+          x2 = x1 * Math.sqrt(h),
+          t0 = 1 / (1 + x0 + x1 + x2),
+          t1 = t0 + t0 * x0,
+          t2 = t1 + t0 * x1,
+          m0 = t0 + t0 * x0 / 2,
+          m1 = t1 + t0 * x1 / 2,
+          m2 = t2 + t0 * x2 / 2,
+          a = 1 / (t0 * t0);
+      return function(t) {
+        return t >= 1 ? 1
+            : t < t0 ? a * t * t
+            : t < t1 ? a * (t -= m0) * t + b0
+            : t < t2 ? a * (t -= m1) * t + b1
+            : a * (t -= m2) * t + b2;
+      };
+    }
 
 		// scales
 		const scaleX = d3.scaleLinear();
@@ -131,7 +156,7 @@ d3.selection.prototype.createFlow = function init(options) {
         stopSectionWidth = width * 0.25
 
         scaleX
-          .range([0, width - stopSectionWidth])
+          .range([0, width - stopSectionWidth - padding])
           .domain([1, 100])
 
         scaleXUnderdogs
@@ -213,7 +238,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .transition()
           .duration(5000)
           .delay((d, i) => Math.random() * 25000)
-          .ease(d3.easeBounceOut)
+          .ease(bounce(0.1))
           .attrTween('transform', function(d){
             //const parent = d3.select(this).node().parentNode
             const sibling = d3.select(this).node().previousSibling
@@ -249,8 +274,35 @@ d3.selection.prototype.createFlow = function init(options) {
             .append('text')
             .text(d => d.text)
             .attr('alignment-baseline', 'baseline')
-            .attr('text-anchor', d => d.rank === 1 ? 'start' : 'end')
+            .attr('text-anchor', 'middle')
             .attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
+
+          rankAnn
+            .append('line')
+            .attr('x1', 0)
+            .attr('x2', 0)
+            .attr('y1', d => breakPoints.highSchool - (rectHeight / 2) + (radius / 2))
+            .attr('y2', d => -radius)
+
+          const underdogAnn = $annotations
+            .append('g')
+            .attr('class', 'annotations__underdog')
+            .attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${breakPoints.highSchool})`)
+
+          underdogAnn
+            .append('text')
+            .text('not in Top 100')
+            .attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
+            .attr('alignment-baseline', 'middle')
+            .attr('text-anchor', 'middle')
+
+          underdogAnn
+            .append('line')
+            .attr('y1', 0)
+            .attr('y2', 0)
+            .attr('x1', 0)
+            .attr('x2', stopSectionWidth - radius)
+            //.attr('transform', d => `translate(0, ${- (rectHeight / 4)})`)
 
 
 
