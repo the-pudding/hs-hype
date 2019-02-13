@@ -16,17 +16,20 @@ d3.selection.prototype.createFlow = function init(options) {
 		let height = 0;
     let radius = 3
     let rectHeight = 0
-		const marginTop = 16;
-		const marginBottom = 0;
+		const marginTop = 32;
+		const marginBottom = 16;
 		const marginLeft = 16;
 		const marginRight = 16;
 
     const breakPoints = {
-      highSchool: 1/6,
-      college: 2/6,
-      draft: 3/6,
-      rookie: 4/6,
-      success: 5/6
+      highSchool: 0/7,
+      college: 1/7,
+      draft: 2/7,
+      rookie: 3/7,
+      bad: 4/7,
+      good: 5/7,
+      great: 6/7,
+      allstar: 7/7,
     }
 
     let stopSectionWidth = null
@@ -38,7 +41,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
     const colorScale = d3.scaleSequential()
       .domain([100, 1])
-      .interpolator(d3.interpolatePlasma)
+      .interpolator(d3.interpolateCool)
 
 		// dom elements
 		let $svg = null;
@@ -64,10 +67,12 @@ d3.selection.prototype.createFlow = function init(options) {
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
         const $allLabels = $svg.append('g').attr('class', 'g-labels')
 
+        $allLabels.attr('transform', `translate(${marginLeft}, ${marginTop})`)
+
 				const $g = $svg.append('g');
 
 				// offset chart for margins
-				//$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
+				$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
 
 				// create axis
 				$axis = $svg.append('g').attr('class', 'g-axis');
@@ -75,17 +80,17 @@ d3.selection.prototype.createFlow = function init(options) {
         const $allStops = $svg.append('g').attr('class', 'g-stops')
 
         const bpKeys = Object.keys(breakPoints)
-        const popped = bpKeys.pop()
+        //const popped = bpKeys.pop()
 
-        $stops = $allStops.selectAll('.stop-group')
-          .data(bpKeys)
-          .enter()
-          .append('g')
-          .attr('class', 'stop-group')
-          .attr('data-bp', (d, i) => bpKeys[i])
-
-        $stops
-          .append('rect')
+        // $stops = $allStops.selectAll('.stop-group')
+        //   .data(bpKeys)
+        //   .enter()
+        //   .append('g')
+        //   .attr('class', 'stop-group')
+        //   .attr('data-bp', (d, i) => bpKeys[i])
+        //
+        // $stops
+        //   .append('rect')
 
 
         $labels = $allLabels.selectAll('.label')
@@ -93,8 +98,13 @@ d3.selection.prototype.createFlow = function init(options) {
           .enter()
           .append('text')
           .attr('class', 'label')
-          .text(d => d === 'highSchool' ? 'high school' : d)
-          .attr('alignment-baseline', 'hanging')
+          .text(d => {
+            if(d === 'highSchool') return 'high school'
+            else if (d === 'bad' || d === 'good' || d === 'great' || d === "allstar"){
+              return `${d} in NBA`
+            }
+            else return d})
+          .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'middle')
 
 
@@ -113,7 +123,7 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('width', width + marginLeft + marginRight)
 					.attr('height', height + marginTop + marginBottom);
 
-        stopSectionWidth = width * 0.2
+        stopSectionWidth = 0
 
         scaleX
           .range([width - stopSectionWidth, 0])
@@ -126,10 +136,10 @@ d3.selection.prototype.createFlow = function init(options) {
         rectHeight = height * 0.05
 
         // scale up the stop boxes
-        $stops.selectAll('rect')
-          .attr('width', stopSectionWidth)
-          .attr('height', rectHeight)
-          .attr('transform', (d, i) => `translate(0, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+        // $stops.selectAll('rect')
+        //   .attr('width', stopSectionWidth)
+        //   .attr('height', rectHeight)
+        //   .attr('transform', (d, i) => `translate(0, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
         $labels
           .attr('transform', (d, i) => `translate(${width / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
@@ -144,7 +154,7 @@ d3.selection.prototype.createFlow = function init(options) {
         console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
-          .data(sub)
+          .data(data)
           .enter()
           .append('g')
           .attr('class', 'player')
@@ -158,21 +168,25 @@ d3.selection.prototype.createFlow = function init(options) {
             let collStopW = d.coll == 0 || d.coll == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let draftStopW = d.draft == 0 || d.draft == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
             let rookieStopW = d.rookie == 0 || d.rookie == ""? stopSectionWidth / 2 : stopSectionWidth + scaleX(d.rank)
-            let successStopW = d.success == 0 || d.success == "" ? stopSectionWidth / 2 : stopSectionWidth + scaleXSuccess(d.success)
+            let successStopW = d.success == 0 || d.success == "" ? stopSectionWidth + scaleX(d.rank) : stopSectionWidth + scaleXSuccess(d.success)
+            let xPos = scaleX(d.rank)
 
             const path = [
               // move over based on HS rank
-              "M", [stopSectionWidth + scaleX(d.rank), marginTop],
+              "M", [xPos, breakPoints.highSchool],
               // move straight down to the top of the HS section
-              "L", [hsStopW, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
               // move straight to the top of the college section
-              "L", [collStopW, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
               // // move straight to the top of the draft section
-              "L", [draftStopW, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
               // // move straight to the rookie section
-              "L", [rookieStopW, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
-              // // move to success section
-              "L", [successStopW, Math.min(height * breakPoints.success, height * breakPoints[d.highest])]
+              "L", [xPos, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
+              // // move to bad section
+              "L", [xPos, Math.min(height * breakPoints.bad, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.good, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.great, height * breakPoints[d.highest])],
+              "L", [xPos, Math.min(height * breakPoints.allstar, height * breakPoints[d.highest])]
             ]
             const joined = path.join(" ")
             return joined
@@ -181,12 +195,13 @@ d3.selection.prototype.createFlow = function init(options) {
         const dots = groups
           .append('circle')
           .attr('r', radius)
-          .style('fill', d => colorScale(d.rank))
-          .attr('transform', d => `translate(${stopSectionWidth + scaleX(d.rank)}, ${marginTop})`)
+          .style('fill', '#F46C23')//d => colorScale(d.rank))
+          .attr('opacity', 0.3)
+          .attr('transform', d => `translate(${scaleX(d.rank)}, ${breakPoints.highSchool})`)
           .transition()
-          .duration(2000)
-          .delay((d, i) => i * 100)
-          .ease(d3.easeCubicInOut)
+          .duration(5000)
+          .delay((d, i) => Math.random() * 25000)
+          .ease(d3.easeBounceOut)
           .attrTween('transform', function(d){
             //const parent = d3.select(this).node().parentNode
             const sibling = d3.select(this).node().previousSibling
@@ -195,6 +210,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
             return response//translateAlong(sibling)
           })
+
 
 				return Chart;
 			},
