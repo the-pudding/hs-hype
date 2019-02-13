@@ -72,6 +72,8 @@ d3.selection.prototype.createFlow = function init(options) {
 
 				const $g = $svg.append('g');
 
+        $annotations = $g.append('g').attr('class', 'g-annotations')
+
 				// offset chart for margins
 				$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
 
@@ -82,7 +84,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         const bpKeys = Object.keys(breakPoints)
 
-        $annotations = $g.append('g').attr('class', 'g-annotations')
+
         //const popped = bpKeys.pop()
 
         // $stops = $allStops.selectAll('.stop-group')
@@ -238,7 +240,7 @@ d3.selection.prototype.createFlow = function init(options) {
             .attr('class', 'annotations__rank')
             .attr('transform', d =>`translate(${scaleX(d.rank)}, ${breakPoints.highSchool})`)
             .raise()
-            
+
           rankAnn
             .append('circle')
             .attr('r', radius + 1)
