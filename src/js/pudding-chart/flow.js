@@ -74,11 +74,24 @@ d3.selection.prototype.createFlow = function init(options) {
 
 		// dom elements
 		let $svg = null;
+    let $canvas = null
+    let $context = null
 		let $axis = null;
 		let $vis = null;
     let $stops = null;
     let $labels = null
     let $annotations = null
+
+    // animation constants
+    let ease = bounce(0.1)
+    let duration = 5000
+    let delay = function(d){
+      return Math.random() * 25000
+    }
+    let maxDelay = 0
+    let timeScale = d3.scaleLinear()
+      .domain([0, duration])
+      .range([0, 1])
 
 		// helper functions
 
@@ -120,8 +133,25 @@ d3.selection.prototype.createFlow = function init(options) {
         //     sel.text(`${Math.round(len / topCount * 100, 0)} %`)
         //   }
         // }
+    }
 
-
+    function drawCircles(point){
+      $context.clearRect(0, 0, width, height)
+      data.forEach(function(d){
+          if (d.top === 0){
+            $context.fillStyle = '#5371AB'
+          } else {
+            $context.fillStyle = '#F46C23'
+          }
+        $context.beginPath()
+        let xPos = null
+        if (d.top == 0){
+          xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
+        } else xPos = scaleX(d.rank)
+        $context.moveTo(xPos, height * breakPoints[d.highest])
+        $context.arc(xPos, height * breakPoints[d.highest], radius, 0, 2 * Math.PI)
+        $context.fill()
+      })
     }
 
 
@@ -160,7 +190,13 @@ d3.selection.prototype.createFlow = function init(options) {
 		const Chart = {
 			// called once at start
 			init() {
+        $canvas = $sel.append('canvas').attr('class', 'pudding-chart-canvas')
+        $context = $canvas.node().getContext('2d')
+
+
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
+
+
         const $allLabels = $svg.append('g').attr('class', 'g-labels')
 
         $allLabels.attr('transform', `translate(${marginLeft}, ${marginTop})`)
@@ -245,6 +281,10 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('width', width + marginLeft + marginRight)
 					.attr('height', height + marginTop + marginBottom);
 
+        $canvas
+          .attr('width', width + marginLeft + marginRight)
+          .attr('height', height + marginTop + marginBottom);
+
         stopSectionWidth = width * 0.25
 
         scaleX
@@ -271,53 +311,33 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels.selectAll('.percentage__underdog')
           .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
+          // setup data for canvas
+          data.forEach(d => {
+            d.trans = {
+              i: d3.interpolate(height, height * breakPoints[d.highest]),
+              delay: delay(d)
+            }
+            if (d.trans.delay > maxDelay) {
+              maxDelay = d.trans.delay
+            }
+          })
+
 				return Chart;
 			},
 			// update scales and render chart
 			render() {
+
+        drawCircles()
+
         let sub = data.slice(0, 3)
         //let sub = data.filter(d => d.recruit_year >= 2005)
         // console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
-          .data(data)
+          .data(sub)
           .enter()
           .append('g')
           .attr('class', 'player')
-
-        // const paths = groups
-        //   .append('path')
-        //   .attr('class', d => `path__player path__player-${d.name}`)
-        //   //.style('stroke', d => colorScale(d.rank))
-        //   .attr('d', function(d){
-        //     let xPos = null
-        //     if (d.top == 0){
-        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
-        //     } else xPos = scaleX(d.rank)
-        //
-        //     //scaleX(d.rank)
-        //     //console.log(xPos)
-        //
-        //     const path = [
-        //       // move over based on HS rank
-        //       "M", [xPos, breakPoints.highSchool],
-        //       // move straight down to the top of the HS section
-        //       "L", [xPos, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
-        //       // move straight to the top of the college section
-        //       "L", [xPos, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
-        //       // // move straight to the top of the draft section
-        //       "L", [xPos, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
-        //       // // move straight to the rookie section
-        //       "L", [xPos, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
-        //       // // move to bad section
-        //       "L", [xPos, Math.min(height * breakPoints.bad, height * breakPoints[d.highest])],
-        //       "L", [xPos, Math.min(height * breakPoints.good, height * breakPoints[d.highest])],
-        //       "L", [xPos, Math.min(height * breakPoints.great, height * breakPoints[d.highest])],
-        //       "L", [xPos, Math.min(height * breakPoints.allstar, height * breakPoints[d.highest])]
-        //     ]
-        //     const joined = path.join(" ")
-        //     return joined
-        //   })
 
         const dots = groups
           .append('circle')
@@ -342,14 +362,7 @@ d3.selection.prototype.createFlow = function init(options) {
             } else xPos = scaleX(d.rank)
 
             return `translate(${xPos}, ${height * breakPoints[d.highest]})`})
-          // .attrTween('transform', function(d){
-          //   //const parent = d3.select(this).node().parentNode
-          //   const sibling = d3.select(this).node().previousSibling
-          //   //const path = parent.childNodes[0]
-          //   let top = d.top
-          //   let response = translateAlong(sibling, top)
-          //   return response//translateAlong(sibling)
-          // })
+
 
           const annotationData = [{
             rank: 1,
