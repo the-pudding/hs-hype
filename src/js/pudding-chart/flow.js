@@ -22,6 +22,9 @@ d3.selection.prototype.createFlow = function init(options) {
 		const marginRight = 16;
     const padding = 8
 
+    const topCount = data.filter(d => d.top === 1).length
+    const underCount = data.filter(d => d.top === 0).length
+
     const breakPoints = {
       highSchool: 0/7,
       college: 1/7,
@@ -32,6 +35,7 @@ d3.selection.prototype.createFlow = function init(options) {
       great: 6/7,
       allstar: 7/7,
     }
+    const bpKeys = Object.keys(breakPoints)
 
     let stopSectionWidth = null
 
@@ -78,20 +82,75 @@ d3.selection.prototype.createFlow = function init(options) {
 
 		// helper functions
 
-    let passCollege = []
+    let topPass = bpKeys.map((d, i) => {
+      const selTop = `$${d}PerTop`
+      const selUnder = `$${d}PerUnder`
+      return {level: d, passed: []}
+    })
+    const topPassMap = d3.map(topPass, d => d.level)
 
-    function translateAlong(path){
+    //topPassMap.get('highSchool').passed.push("test")
+
+    let collegePass = []
+    // bpKeys.map(d => {
+    //   return {[d]: []}
+    // })
+
+    function updatePercent(point, level, top, passedLevel){
+      console.log("updating percent")
+        let lastPassed = passedLevel
+        passedLevel = false
+        if (top === 1){
+          if (point.y >= height * breakPoints[level]) passedLevel = true
+          if (lastPassed === false && passedLevel === true) {
+            topPassMap.get(level).passed.push(1)
+            const len = topPassMap.get(level).passed.length
+            const string = `$${level}PerTop`
+            const sel = $svg.selectAll(`.percentage__top-${level}`)
+            sel.text(`${Math.round(len / topCount * 100, 0)} %`)
+          }
+        }
+
+        // if (top === 0){
+        //   if (point.y >= height * breakPoints[level]) passedLevel = true
+        //   if (lastPassed === false && passedLevel === true) {
+        //     topPassMap.get(level).passed.push(1)
+        //     const len = topPassMap.get(level).passed.length
+        //     const sel = $svg.selectAll(`.percentage__underdog-${level}`)
+        //     sel.text(`${Math.round(len / topCount * 100, 0)} %`)
+        //   }
+        // }
+
+
+    }
+
+
+    function translateAlong(path, top){
+      let passedLevel = false
 			let length = path.getTotalLength(); // Get the length of the path
 			let r = d3.interpolate(0, length); //Set up interpolation from 0 to the path length
 			return function(t){
 				let point = path.getPointAtLength(r(t));
+        //let lastPassed = passedCollege
+        //passedCollege = false
 
-        console.log({point})
-        let passedCollege = false
-        if (point.y >= height * breakPoints.college) {
-          passedCollege = true
-          if (passedCollege = true) passCollege.push("passed")
-        }
+        updatePercent(point, 'college', top, passedLevel)
+        //updatePercent(point, 'draft', top)
+        console.log({topPass})
+        //console.log({lastPassed, passedCollege})
+        // if (top === 1){
+        //   if (point.y >= height * breakPoints.college) passedCollege = true
+        //   if (lastPassed === false && passedCollege === true) {
+        //     collegePass.push(t)
+        //     const numCol = collegePass.length
+        //     $collegePerTop.text(`${Math.round(numCol/topCount * 100, 0)}%`)
+        //   }
+        // }
+
+        // //const test = $labels.selectAll('.g-label-college').select('.percentage__top')
+        // console.log({test})
+          //.text(`${collegePass.length}`)
+
         // Get the next point along the path
         return `translate(${point.x}, ${point.y})`
 			}
@@ -118,8 +177,6 @@ d3.selection.prototype.createFlow = function init(options) {
 
         const $allStops = $svg.append('g').attr('class', 'g-stops')
 
-        const bpKeys = Object.keys(breakPoints)
-
 
         //const popped = bpKeys.pop()
 
@@ -138,7 +195,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .data(bpKeys)
           .enter()
           .append('g')
-          .attr('class', 'g-label')
+          .attr('class', d => `g-label g-label-${d}`)
 
         $labels
           .append('text')
@@ -154,20 +211,25 @@ d3.selection.prototype.createFlow = function init(options) {
 
         $labels
           .append('text')
-          .attr('class', 'percentage percentage__top')
+          .attr('class', d => `percentage percentage__top percentage__top-${d}`)
           .text(d => d === 'highSchool' ? '' : 'x%')
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
 
         $labels
           .append('text')
-          .attr('class', 'percentage percentage__underdog')
+          .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
           .text(d => d === 'highSchool' ? '' : 'x%')
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'start')
 
 
+        // const $collegePerTop = $svg.select('.percentage__top-college')
+        // const $collegePerUnder = $labels.select('.percentage__underdog-college').node()
+        // console.log({$collegePerTop})
 
+        //$collegePerTop = $collegeLab.select('.percentage__top')
+        //console.log({$collegeLab})
 				// setup viz group
 				$vis = $g.append('g').attr('class', 'g-vis');
 
@@ -213,9 +275,9 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
-        let sub = data.slice(0, 1)
+        let sub = data.slice(0, 3)
         //let sub = data.filter(d => d.recruit_year >= 2005)
-        console.log({data, sub})
+        // console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
           .data(sub)
@@ -277,8 +339,8 @@ d3.selection.prototype.createFlow = function init(options) {
             //const parent = d3.select(this).node().parentNode
             const sibling = d3.select(this).node().previousSibling
             //const path = parent.childNodes[0]
-            let response = translateAlong(sibling)
-            console.log({passCollege})
+            let top = d.top
+            let response = translateAlong(sibling, top)
             return response//translateAlong(sibling)
           })
 
@@ -289,7 +351,6 @@ d3.selection.prototype.createFlow = function init(options) {
             rank: 100,
             text: '#100'
           }]
-          console.log({annotationData})
 
           const rankAnn = $annotations
             .selectAll('.annotations__rank')
