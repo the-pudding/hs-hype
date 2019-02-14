@@ -83,7 +83,7 @@ d3.selection.prototype.createFlow = function init(options) {
     let $annotations = null
 
     // animation constants
-    let ease = bounce(0.1)
+    //let ease = d3.easeBounceOut()
     let duration = 5000
     let delay = function(d){
       return Math.random() * 25000
@@ -92,6 +92,7 @@ d3.selection.prototype.createFlow = function init(options) {
     let timeScale = d3.scaleLinear()
       .domain([0, duration])
       .range([0, 1])
+
 
 		// helper functions
 
@@ -148,10 +149,24 @@ d3.selection.prototype.createFlow = function init(options) {
         if (d.top == 0){
           xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
         } else xPos = scaleX(d.rank)
-        $context.moveTo(xPos, height * breakPoints[d.highest])
-        $context.arc(xPos, height * breakPoints[d.highest], radius, 0, 2 * Math.PI)
+        $context.moveTo(xPos, d.y)
+        $context.arc(xPos, d.y, radius, 0, 2 * Math.PI)
         $context.fill()
       })
+    }
+
+    function moveCircles(t){
+      data.forEach(d => {
+        const del = d.trans.delay
+        let time = d3.easeCubic(timeScale(t - d.trans.delay))
+        //console.log({time})
+        // to fix: why is y still undefined?
+        d.y = d.trans.i(time)
+      })
+      drawCircles()
+      if(t >= duration + maxDelay) {
+        return true
+      }
     }
 
 
@@ -166,7 +181,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         updatePercent(point, 'college', top, passedLevel)
         //updatePercent(point, 'draft', top)
-        console.log({topPass})
+        // console.log({topPass})
         //console.log({lastPassed, passedCollege})
         // if (top === 1){
         //   if (point.y >= height * breakPoints.college) passedCollege = true
@@ -313,13 +328,17 @@ d3.selection.prototype.createFlow = function init(options) {
 
           // setup data for canvas
           data.forEach(d => {
+            const yPos = height * breakPoints[d.highest]
+            d.y = height * breakPoints[d.highest],
+
             d.trans = {
-              i: d3.interpolate(height, height * breakPoints[d.highest]),
+              i: d3.interpolate(0, d.y),
               delay: delay(d)
             }
             if (d.trans.delay > maxDelay) {
               maxDelay = d.trans.delay
             }
+
           })
 
 				return Chart;
@@ -327,7 +346,7 @@ d3.selection.prototype.createFlow = function init(options) {
 			// update scales and render chart
 			render() {
 
-        drawCircles()
+        d3.timer(moveCircles)
 
         let sub = data.slice(0, 3)
         //let sub = data.filter(d => d.recruit_year >= 2005)
