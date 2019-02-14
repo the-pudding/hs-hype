@@ -14,6 +14,7 @@ function cleanData(arr){
       draft: +d.draft,
       rookie: +d.rookie,
       success: +d.success,
+      underRank: +d.top === 0 ? Math.random() : ""
     }
   })
 }

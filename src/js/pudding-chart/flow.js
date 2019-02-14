@@ -280,44 +280,44 @@ d3.selection.prototype.createFlow = function init(options) {
         // console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
-          .data(sub)
+          .data(data)
           .enter()
           .append('g')
           .attr('class', 'player')
 
-        const paths = groups
-          .append('path')
-          .attr('class', d => `path__player path__player-${d.name}`)
-          //.style('stroke', d => colorScale(d.rank))
-          .attr('d', function(d){
-            let xPos = null
-            if (d.top == 0){
-              xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
-            } else xPos = scaleX(d.rank)
-
-            //scaleX(d.rank)
-            //console.log(xPos)
-
-            const path = [
-              // move over based on HS rank
-              "M", [xPos, breakPoints.highSchool],
-              // move straight down to the top of the HS section
-              "L", [xPos, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
-              // move straight to the top of the college section
-              "L", [xPos, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
-              // // move straight to the top of the draft section
-              "L", [xPos, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
-              // // move straight to the rookie section
-              "L", [xPos, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
-              // // move to bad section
-              "L", [xPos, Math.min(height * breakPoints.bad, height * breakPoints[d.highest])],
-              "L", [xPos, Math.min(height * breakPoints.good, height * breakPoints[d.highest])],
-              "L", [xPos, Math.min(height * breakPoints.great, height * breakPoints[d.highest])],
-              "L", [xPos, Math.min(height * breakPoints.allstar, height * breakPoints[d.highest])]
-            ]
-            const joined = path.join(" ")
-            return joined
-          })
+        // const paths = groups
+        //   .append('path')
+        //   .attr('class', d => `path__player path__player-${d.name}`)
+        //   //.style('stroke', d => colorScale(d.rank))
+        //   .attr('d', function(d){
+        //     let xPos = null
+        //     if (d.top == 0){
+        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
+        //     } else xPos = scaleX(d.rank)
+        //
+        //     //scaleX(d.rank)
+        //     //console.log(xPos)
+        //
+        //     const path = [
+        //       // move over based on HS rank
+        //       "M", [xPos, breakPoints.highSchool],
+        //       // move straight down to the top of the HS section
+        //       "L", [xPos, Math.min(height * breakPoints.highSchool, height * breakPoints[d.highest])],
+        //       // move straight to the top of the college section
+        //       "L", [xPos, Math.min(height * breakPoints.college, height * breakPoints[d.highest])],
+        //       // // move straight to the top of the draft section
+        //       "L", [xPos, Math.min(height * breakPoints.draft, height * breakPoints[d.highest])],
+        //       // // move straight to the rookie section
+        //       "L", [xPos, Math.min(height * breakPoints.rookie, height * breakPoints[d.highest])],
+        //       // // move to bad section
+        //       "L", [xPos, Math.min(height * breakPoints.bad, height * breakPoints[d.highest])],
+        //       "L", [xPos, Math.min(height * breakPoints.good, height * breakPoints[d.highest])],
+        //       "L", [xPos, Math.min(height * breakPoints.great, height * breakPoints[d.highest])],
+        //       "L", [xPos, Math.min(height * breakPoints.allstar, height * breakPoints[d.highest])]
+        //     ]
+        //     const joined = path.join(" ")
+        //     return joined
+        //   })
 
         const dots = groups
           .append('circle')
@@ -327,7 +327,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('transform', d => {
             let xPos = null
             if (d.top == 0){
-              xPos = (width - stopSectionWidth) + scaleXUnderdogs(Math.random())
+              xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
             } else xPos = scaleX(d.rank)
 
             return `translate(${xPos}, ${breakPoints.highSchool})`})
@@ -335,14 +335,21 @@ d3.selection.prototype.createFlow = function init(options) {
           .duration(5000)
           .delay((d, i) => Math.random() * 25000)
           .ease(bounce(0.1))
-          .attrTween('transform', function(d){
-            //const parent = d3.select(this).node().parentNode
-            const sibling = d3.select(this).node().previousSibling
-            //const path = parent.childNodes[0]
-            let top = d.top
-            let response = translateAlong(sibling, top)
-            return response//translateAlong(sibling)
-          })
+          .attr('transform', d => {
+            let xPos = null
+            if (d.top == 0){
+              xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
+            } else xPos = scaleX(d.rank)
+
+            return `translate(${xPos}, ${height * breakPoints[d.highest]})`})
+          // .attrTween('transform', function(d){
+          //   //const parent = d3.select(this).node().parentNode
+          //   const sibling = d3.select(this).node().previousSibling
+          //   //const path = parent.childNodes[0]
+          //   let top = d.top
+          //   let response = translateAlong(sibling, top)
+          //   return response//translateAlong(sibling)
+          // })
 
           const annotationData = [{
             rank: 1,
