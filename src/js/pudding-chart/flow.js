@@ -11,6 +11,7 @@ d3.selection.prototype.createFlow = function init(options) {
 	function createChart(el) {
 		const $sel = d3.select(el);
 		let data = $sel.datum();
+    let timer = null
 		// dimension stuff
 		let width = 0;
 		let height = 0;
@@ -88,10 +89,11 @@ d3.selection.prototype.createFlow = function init(options) {
     let delay = function(d){
       return Math.random() * 25000
     }
-    let maxDelay = 0
+    let maxDelay = 25000
     let timeScale = d3.scaleLinear()
       .domain([0, duration])
       .range([0, 1])
+      .clamp(true)
 
 
 		// helper functions
@@ -110,10 +112,16 @@ d3.selection.prototype.createFlow = function init(options) {
     //   return {[d]: []}
     // })
 
-    function updatePercent(point, level, top, passedLevel){
-      console.log("updating percent")
-        let lastPassed = passedLevel
-        passedLevel = false
+    function updateAllPercent(d){
+      const top = d.top
+      updatePercent(d, 'college', top)
+    }
+
+    function updatePercent(point, level, top){
+
+      // console.log("updating percent")
+      //   let lastPassed = passedLevel
+      //   passedLevel = false
         if (top === 1){
           if (point.y >= height * breakPoints[level]) passedLevel = true
           if (lastPassed === false && passedLevel === true) {
@@ -137,12 +145,12 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     function drawCircles(point){
-      $context.clearRect(0, 0, width, height)
+      $context.clearRect(0, 0, width + marginLeft + marginRight, height + marginTop + marginBottom)
       data.forEach(function(d){
           if (d.top === 0){
-            $context.fillStyle = '#5371AB'
+            $context.fillStyle = 'rgba(83, 113, 171, 0.3)'
           } else {
-            $context.fillStyle = '#F46C23'
+            $context.fillStyle = 'rgba(244, 108, 35, 0.3)'
           }
         $context.beginPath()
         let xPos = null
@@ -158,14 +166,15 @@ d3.selection.prototype.createFlow = function init(options) {
     function moveCircles(t){
       data.forEach(d => {
         const del = d.trans.delay
-        let time = d3.easeCubic(timeScale(t - d.trans.delay))
-        //console.log({time})
-        // to fix: why is y still undefined?
+        let time = d3.easeBounceOut(timeScale(t - d.trans.delay))
         d.y = d.trans.i(time)
+        if (!d.triggered) updatePercent(d)
+        //updatePercent(d)
+        const yPos = d.y
       })
       drawCircles()
       if(t >= duration + maxDelay) {
-        return true
+        timer.stop()
       }
     }
 
@@ -303,11 +312,11 @@ d3.selection.prototype.createFlow = function init(options) {
         stopSectionWidth = width * 0.25
 
         scaleX
-          .range([0, width - stopSectionWidth - padding])
+          .range([marginLeft, width - stopSectionWidth - padding])
           .domain([1, 100])
 
         scaleXUnderdogs
-          .range([stopSectionWidth, 0])
+          .range([stopSectionWidth + marginLeft, 0])
           .domain([0, 1])
 
         rectHeight = height * 0.05
@@ -328,11 +337,11 @@ d3.selection.prototype.createFlow = function init(options) {
 
           // setup data for canvas
           data.forEach(d => {
-            const yPos = height * breakPoints[d.highest]
-            d.y = height * breakPoints[d.highest],
+            //const yPos = height * breakPoints[d.highest] + marginTop
+            d.y = height * breakPoints[d.highest] + marginTop,
 
             d.trans = {
-              i: d3.interpolate(0, d.y),
+              i: d3.interpolate(marginTop, d.y),
               delay: delay(d)
             }
             if (d.trans.delay > maxDelay) {
@@ -346,7 +355,7 @@ d3.selection.prototype.createFlow = function init(options) {
 			// update scales and render chart
 			render() {
 
-        d3.timer(moveCircles)
+        timer = d3.timer(moveCircles)
 
         let sub = data.slice(0, 3)
         //let sub = data.filter(d => d.recruit_year >= 2005)
