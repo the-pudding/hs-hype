@@ -99,38 +99,56 @@ d3.selection.prototype.createFlow = function init(options) {
 		// helper functions
 
     let topPass = bpKeys.map((d, i) => {
-      const selTop = `$${d}PerTop`
-      const selUnder = `$${d}PerUnder`
       return {level: d, passed: []}
     })
     const topPassMap = d3.map(topPass, d => d.level)
 
+    let underPass = bpKeys.map((d, i) => {
+      return {level: d, passed: []}
+    })
+    const underPassMap = d3.map(underPass, d => d.level)
     //topPassMap.get('highSchool').passed.push("test")
 
     let collegePass = []
+    let percentSelectors = {
+      college: {},
+      draft: {},
+      rookie: {},
+      bad: {},
+      good: {},
+      great: {},
+      allstar: {}
+    }
     // bpKeys.map(d => {
     //   return {[d]: []}
     // })
 
     function updateAllPercent(d){
       const top = d.top
-      updatePercent(d, 'college', top)
+      if (d.coll <= 2 & d.y >= height * breakPoints.college) updatePercent(d, 'college', top)
+      if (d.draft <= 2 & d.y >= height * breakPoints.draft) updatePercent(d, 'draft', top)
+      if (d.rookie <= 2 & d.y >= height * breakPoints.rookie) updatePercent(d, 'rookie', top)
+      if (d.bad <= 2 & d.y >= height * breakPoints.bad) updatePercent(d, 'bad', top)
+      if (d.good <= 2 & d.y >= height * breakPoints.good) updatePercent(d, 'good', top)
+      if (d.great <= 2 & d.y >= height * breakPoints.great) updatePercent(d, 'great', top)
+      if (d.allstar <= 2 & d.y >= height * breakPoints.allstar) updatePercent(d, 'allstar', top)
     }
 
-    function updatePercent(point, level, top){
-
-      // console.log("updating percent")
-      //   let lastPassed = passedLevel
-      //   passedLevel = false
+    function updatePercent(d, level, top){
+      if (level === 'college') d.coll = 3
+      else d[level] = 3
         if (top === 1){
-          if (point.y >= height * breakPoints[level]) passedLevel = true
-          if (lastPassed === false && passedLevel === true) {
-            topPassMap.get(level).passed.push(1)
-            const len = topPassMap.get(level).passed.length
-            const string = `$${level}PerTop`
-            const sel = $svg.selectAll(`.percentage__top-${level}`)
-            sel.text(`${Math.round(len / topCount * 100, 0)} %`)
-          }
+          topPassMap.get(level).passed.push(1)
+          const len = topPassMap.get(level).passed.length
+          const sel = percentSelectors[level].top
+          sel.text(`${Math.round(len / topCount * 100, 0)} %`)
+        }
+
+        if (top === 0){
+          underPassMap.get(level).passed.push(1)
+          const len = underPassMap.get(level).passed.length
+          const sel = percentSelectors[level].bottom
+          sel.text(`${Math.round(len / underCount * 100, 0)} %`)
         }
 
         // if (top === 0){
@@ -168,7 +186,7 @@ d3.selection.prototype.createFlow = function init(options) {
         const del = d.trans.delay
         let time = d3.easeBounceOut(timeScale(t - d.trans.delay))
         d.y = d.trans.i(time)
-        if (!d.triggered) updatePercent(d)
+        updateAllPercent(d)
         //updatePercent(d)
         const yPos = d.y
       })
@@ -176,38 +194,6 @@ d3.selection.prototype.createFlow = function init(options) {
       if(t >= duration + maxDelay) {
         timer.stop()
       }
-    }
-
-
-    function translateAlong(path, top){
-      let passedLevel = false
-			let length = path.getTotalLength(); // Get the length of the path
-			let r = d3.interpolate(0, length); //Set up interpolation from 0 to the path length
-			return function(t){
-				let point = path.getPointAtLength(r(t));
-        //let lastPassed = passedCollege
-        //passedCollege = false
-
-        updatePercent(point, 'college', top, passedLevel)
-        //updatePercent(point, 'draft', top)
-        // console.log({topPass})
-        //console.log({lastPassed, passedCollege})
-        // if (top === 1){
-        //   if (point.y >= height * breakPoints.college) passedCollege = true
-        //   if (lastPassed === false && passedCollege === true) {
-        //     collegePass.push(t)
-        //     const numCol = collegePass.length
-        //     $collegePerTop.text(`${Math.round(numCol/topCount * 100, 0)}%`)
-        //   }
-        // }
-
-        // //const test = $labels.selectAll('.g-label-college').select('.percentage__top')
-        // console.log({test})
-          //.text(`${collegePass.length}`)
-
-        // Get the next point along the path
-        return `translate(${point.x}, ${point.y})`
-			}
     }
 
 
@@ -223,14 +209,14 @@ d3.selection.prototype.createFlow = function init(options) {
 
         const $allLabels = $svg.append('g').attr('class', 'g-labels')
 
-        $allLabels.attr('transform', `translate(${marginLeft}, ${marginTop})`)
+        $allLabels.attr('transform', `translate(0, ${marginTop})`)
 
 				const $g = $svg.append('g');
 
         $annotations = $g.append('g').attr('class', 'g-annotations')
 
 				// offset chart for margins
-				$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
+				//$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
 
 				// create axis
 				$axis = $svg.append('g').attr('class', 'g-axis');
@@ -272,18 +258,32 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels
           .append('text')
           .attr('class', d => `percentage percentage__top percentage__top-${d}`)
-          .text(d => d === 'highSchool' ? '' : 'x%')
+          .text(d => d === 'highSchool' ? '' : '0%')
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
 
         $labels
           .append('text')
           .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
-          .text(d => d === 'highSchool' ? '' : 'x%')
+          .text(d => d === 'highSchool' ? '' : '0%')
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'start')
 
-
+        percentSelectors.college.top = $svg.selectAll('.percentage__top-college')
+        percentSelectors.college.bottom = $svg.selectAll('.percentage__underdog-college')
+        percentSelectors.draft.top = $svg.selectAll('.percentage__top-draft')
+        percentSelectors.draft.bottom = $svg.selectAll('.percentage__underdog-draft')
+        percentSelectors.rookie.top = $svg.selectAll('.percentage__top-rookie')
+        percentSelectors.rookie.bottom = $svg.selectAll('.percentage__underdog-rookie')
+        percentSelectors.bad.top = $svg.selectAll('.percentage__top-bad')
+        percentSelectors.bad.bottom = $svg.selectAll('.percentage__underdog-bad')
+        percentSelectors.good.top = $svg.selectAll('.percentage__top-good')
+        percentSelectors.good.bottom = $svg.selectAll('.percentage__underdog-good')
+        percentSelectors.great.top = $svg.selectAll('.percentage__top-great')
+        percentSelectors.great.bottom = $svg.selectAll('.percentage__underdog-great')
+        percentSelectors.allstar.top = $svg.selectAll('.percentage__top-allstar')
+        percentSelectors.allstar.bottom = $svg.selectAll('.percentage__underdog-allstar')
+        console.log({percentSelectors})
         // const $collegePerTop = $svg.select('.percentage__top-college')
         // const $collegePerUnder = $labels.select('.percentage__underdog-college').node()
         // console.log({$collegePerTop})
@@ -367,29 +367,29 @@ d3.selection.prototype.createFlow = function init(options) {
           .append('g')
           .attr('class', 'player')
 
-        const dots = groups
-          .append('circle')
-          .attr('r', radius)
-          .style('fill', d => d.top == 0 ? '#5371AB' : '#F46C23')//d => colorScale(d.rank))
-          .attr('opacity', 0.3)
-          .attr('transform', d => {
-            let xPos = null
-            if (d.top == 0){
-              xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
-            } else xPos = scaleX(d.rank)
-
-            return `translate(${xPos}, ${breakPoints.highSchool})`})
-          .transition()
-          .duration(5000)
-          .delay((d, i) => Math.random() * 25000)
-          .ease(bounce(0.1))
-          .attr('transform', d => {
-            let xPos = null
-            if (d.top == 0){
-              xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
-            } else xPos = scaleX(d.rank)
-
-            return `translate(${xPos}, ${height * breakPoints[d.highest]})`})
+        // const dots = groups
+        //   .append('circle')
+        //   .attr('r', radius)
+        //   .style('fill', d => d.top == 0 ? '#5371AB' : '#F46C23')//d => colorScale(d.rank))
+        //   .attr('opacity', 0.3)
+        //   .attr('transform', d => {
+        //     let xPos = null
+        //     if (d.top == 0){
+        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
+        //     } else xPos = scaleX(d.rank)
+        //
+        //     return `translate(${xPos}, ${breakPoints.highSchool})`})
+        //   .transition()
+        //   .duration(5000)
+        //   .delay((d, i) => Math.random() * 25000)
+        //   .ease(bounce(0.1))
+        //   .attr('transform', d => {
+        //     let xPos = null
+        //     if (d.top == 0){
+        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
+        //     } else xPos = scaleX(d.rank)
+        //
+        //     return `translate(${xPos}, ${height * breakPoints[d.highest]})`})
 
 
           const annotationData = [{
@@ -406,7 +406,7 @@ d3.selection.prototype.createFlow = function init(options) {
             .enter()
             .append('g')
             .attr('class', 'annotations__rank')
-            .attr('transform', d =>`translate(${scaleX(d.rank)}, ${breakPoints.highSchool})`)
+            .attr('transform', d =>`translate(${scaleX(d.rank)}, ${marginTop + (height * breakPoints.highSchool)})`)
             .raise()
 
           rankAnn
@@ -430,7 +430,7 @@ d3.selection.prototype.createFlow = function init(options) {
           const underdogAnn = $annotations
             .append('g')
             .attr('class', 'annotations__underdog')
-            .attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${breakPoints.highSchool})`)
+            .attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
 
           underdogAnn
             .append('text')
