@@ -78,14 +78,25 @@ d3.selection.prototype.createFlow = function init(options) {
 
 		// helper functions
 
+    let passCollege = []
+
     function translateAlong(path){
 			let length = path.getTotalLength(); // Get the length of the path
 			let r = d3.interpolate(0, length); //Set up interpolation from 0 to the path length
 			return function(t){
-				let point = path.getPointAtLength(r(t)); // Get the next point along the path
+				let point = path.getPointAtLength(r(t));
+
+        console.log({point})
+        let passedCollege = false
+        if (point.y >= height * breakPoints.college) {
+          passedCollege = true
+          if (passedCollege = true) passCollege.push("passed")
+        }
+        // Get the next point along the path
         return `translate(${point.x}, ${point.y})`
 			}
     }
+
 
 		const Chart = {
 			// called once at start
@@ -123,9 +134,13 @@ d3.selection.prototype.createFlow = function init(options) {
         //   .append('rect')
 
 
-        $labels = $allLabels.selectAll('.label')
+        $labels = $allLabels.selectAll('.g-label')
           .data(bpKeys)
           .enter()
+          .append('g')
+          .attr('class', 'g-label')
+
+        $labels
           .append('text')
           .attr('class', 'label')
           .text(d => {
@@ -136,6 +151,21 @@ d3.selection.prototype.createFlow = function init(options) {
             else return d})
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'middle')
+
+        $labels
+          .append('text')
+          .attr('class', 'percentage percentage__top')
+          .text(d => d === 'highSchool' ? '' : 'x%')
+          .attr('alignment-baseline', 'middle')
+          .attr('text-anchor', 'end')
+
+        $labels
+          .append('text')
+          .attr('class', 'percentage percentage__underdog')
+          .text(d => d === 'highSchool' ? '' : 'x%')
+          .attr('alignment-baseline', 'middle')
+          .attr('text-anchor', 'start')
+
 
 
 				// setup viz group
@@ -170,21 +200,25 @@ d3.selection.prototype.createFlow = function init(options) {
         //   .attr('width', stopSectionWidth)
         //   .attr('height', rectHeight)
         //   .attr('transform', (d, i) => `translate(0, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
-
-        $labels
+        $labels.selectAll('.label')
           .attr('transform', (d, i) => `translate(${width / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
+        $labels.selectAll('.percentage__top')
+          .attr('transform', (d, i) => `translate(${width - stopSectionWidth - padding}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+
+        $labels.selectAll('.percentage__underdog')
+          .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
 				return Chart;
 			},
 			// update scales and render chart
 			render() {
-        //let sub = data.slice(0, 500)
-        let sub = data.filter(d => d.recruit_year >= 2005)
+        let sub = data.slice(0, 1)
+        //let sub = data.filter(d => d.recruit_year >= 2005)
         console.log({data, sub})
 
         const groups = $vis.selectAll('.player')
-          .data(data)
+          .data(sub)
           .enter()
           .append('g')
           .attr('class', 'player')
@@ -244,7 +278,7 @@ d3.selection.prototype.createFlow = function init(options) {
             const sibling = d3.select(this).node().previousSibling
             //const path = parent.childNodes[0]
             let response = translateAlong(sibling)
-
+            console.log({passCollege})
             return response//translateAlong(sibling)
           })
 

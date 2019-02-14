@@ -10,10 +10,18 @@
       fill none
     .g-labels
       .label
-          font-family $national
-          text-transform: uppercase;
-          fill $brown
-          font-weight bold
+        font-family $national
+        text-transform: uppercase;
+        fill $brown
+        font-weight bold
+      .percentage
+        font-family $national
+        font-weight bold
+        set-type-size('small')
+        &__top
+          fill $orange;
+        &__underdog
+          fill $blue
 
     .annotations__rank
       circle
