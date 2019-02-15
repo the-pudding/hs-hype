@@ -10,7 +10,10 @@
 d3.selection.prototype.createFlow = function init(options) {
 	function createChart(el) {
 		const $sel = d3.select(el);
-		let data = $sel.datum();
+    const filter = $sel.datum().filter
+		let masterData = $sel.datum().filteredData;
+    let data = masterData
+    console.log({masterData, data})
     let timer = null
 		// dimension stuff
 		let width = 0;
@@ -70,6 +73,14 @@ d3.selection.prototype.createFlow = function init(options) {
     }, {
       rank: 100,
       text: '#100'
+    }]
+
+    const annotationData10 = [{
+      rank: 1,
+      text: '#1'
+    }, {
+      rank: 10,
+      text: '#10'
     }]
 
 		// scales
@@ -253,12 +264,16 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
 
-        $labels
-          .append('text')
-          .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
-          .text(d => d === 'highSchool' ? '' : '0%')
-          .attr('alignment-baseline', 'middle')
-          .attr('text-anchor', 'start')
+        if (filter != "ranked" && filter != "top10"){
+          $labels
+            .append('text')
+            .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
+            .text(d => d === 'highSchool' ? '' : '0%')
+            .attr('alignment-baseline', 'middle')
+            .attr('text-anchor', 'start')
+        }
+
+
 
         percentSelectors.college.top = $svg.selectAll('.percentage__top-college')
         percentSelectors.college.bottom = $svg.selectAll('.percentage__underdog-college')
@@ -275,12 +290,14 @@ d3.selection.prototype.createFlow = function init(options) {
         percentSelectors.allstar.top = $svg.selectAll('.percentage__top-allstar')
         percentSelectors.allstar.bottom = $svg.selectAll('.percentage__underdog-allstar')
 
+        console.log({percentSelectors})
+
 				$vis = $g.append('g').attr('class', 'g-vis');
 
 
         rankAnn = $annotations
           .selectAll('.annotations__rank')
-          .data(annotationData)
+          .data(filter === "top10" ? annotationData10 : annotationData)
           .enter()
           .append('g')
           .attr('class', 'annotations__rank')
@@ -301,22 +318,26 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('x1', 0)
           .attr('x2', 0)
 
-        underdogAnn = $annotations
-          .append('g')
-          .attr('class', 'annotations__underdog')
+        if (filter != "ranked" && filter != "top10"){
+          underdogAnn = $annotations
+            .append('g')
+            .attr('class', 'annotations__underdog')
 
 
-        underdogAnn
-          .append('text')
-          .text('not in Top 100')
-          .attr('alignment-baseline', 'middle')
-          .attr('text-anchor', 'middle')
+          underdogAnn
+            .append('text')
+            .text('not in Top 100')
+            .attr('alignment-baseline', 'middle')
+            .attr('text-anchor', 'middle')
 
-        underdogAnn
-          .append('line')
-          .attr('y1', 0)
-          .attr('y2', 0)
-          .attr('x1', 0)
+          underdogAnn
+            .append('line')
+            .attr('y1', 0)
+            .attr('y2', 0)
+            .attr('x1', 0)
+        }
+
+
 
 				Chart.resize();
 				Chart.render();
@@ -336,24 +357,54 @@ d3.selection.prototype.createFlow = function init(options) {
 
         stopSectionWidth = width * 0.25
 
-        scaleX
-          .range([marginLeft, width - stopSectionWidth - padding])
-          .domain([1, 100])
+        if (filter === "ranked"){
+          scaleX
+            .range([marginLeft, width - marginRight])
+            .domain([1, 100])
 
-        scaleXUnderdogs
-          .range([stopSectionWidth + marginLeft, 0])
-          .domain([0, 1])
+          scaleXUnderdogs
+            .range([0, 0])
+            .domain([0, 0])
+        } else if (filter === "top10"){
+          scaleX
+            .range([marginLeft, width - marginRight])
+            .domain([1, 10])
+
+          scaleXUnderdogs
+            .range([0, 0])
+            .domain([0, 0])
+        } else {
+          scaleX
+            .range([marginLeft, width - stopSectionWidth - padding])
+            .domain([1, 100])
+
+          scaleXUnderdogs
+            .range([stopSectionWidth + marginLeft, 0])
+            .domain([0, 1])
+        }
+
+
 
         rectHeight = height * 0.05
 
         $labels.selectAll('.label')
-          .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+          .attr('transform', (d, i) => {
+            let xPos = null
+            if (filter == "ranked"|| filter == "top10") xPos = width / 2
+            else xPos = (width - stopSectionWidth) / 2
+
+            return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
+          })
 
         $labels.selectAll('.percentage__top')
-          .attr('transform', (d, i) => `translate(${width - stopSectionWidth - padding}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+          .attr('transform', (d, i) => {
+            let xPos = null
+            if (filter == "ranked" || filter == "top10") xPos = width
+            else xPos = width - stopSectionWidth - padding
 
-        $labels.selectAll('.percentage__underdog')
-          .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+            return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
+          })
+
 
         rankAnn.attr('transform', d =>`translate(${scaleX(d.rank)}, ${marginTop + (height * breakPoints.highSchool)})`)
 
@@ -363,11 +414,18 @@ d3.selection.prototype.createFlow = function init(options) {
 
         rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
 
-        underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
+        if (filter != "ranked" && filter != "top10"){
+          underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
 
-        underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
+          underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
 
-        underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
+          underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
+
+          $labels.selectAll('.percentage__underdog')
+            .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+        }
+
+
           // setup data for canvas
           data.forEach(d => {
             //const yPos = height * breakPoints[d.highest] + marginTop
