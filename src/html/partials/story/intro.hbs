@@ -13,11 +13,19 @@
 	{{/each}}
 
 	<figure class='chart'>
+		<div class='chart__meta'>
+			<h4 class='chart__meta-title'>{{{doc.rankTitle}}}</h4>
+			<p class='chart__meta-sub'>{{{doc.rankSub}}}</p>
+		</div>
 		<div class='chart__flow' data-filter='ranked'></div>
 	</figure>
 
 
 	<figure class='chart'>
+		<div class='chart__meta'>
+			<h4 class='chart__meta-title'>{{{doc.top10Title}}}</h4>
+			<p class='chart__meta-sub'>{{{doc.top10Sub}}}</p>
+		</div>
 		<div class='chart__flow' data-filter='top10'></div>
 	</figure>
 </div>

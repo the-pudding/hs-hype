@@ -12,7 +12,7 @@ d3.selection.prototype.createFlow = function init(options) {
 		const $sel = d3.select(el);
     const filter = $sel.datum().filter
 		let masterData = $sel.datum().filteredData;
-    let data = masterData
+    let data = masterData.map(d => ({...d}))
     console.log({masterData, data})
     let timer = null
 		// dimension stuff

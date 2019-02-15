@@ -4,18 +4,34 @@
 	{{/each}}
 
 	<figure class='chart'>
+    <div class='chart__meta'>
+      <h4 class='chart__meta-title'>{{{doc.uncTitle}}}</h4>
+      <p class='chart__meta-sub'>{{{doc.uncSub}}}</p>
+    </div>
 		<div class='chart__flow' data-filter='unc'></div>
 	</figure>
 
   <figure class='chart'>
+    <div class='chart__meta'>
+      <h4 class='chart__meta-title'>{{{doc.ukTitle}}}</h4>
+      <p class='chart__meta-sub'>{{{doc.ukSub}}}</p>
+    </div>
     <div class='chart__flow' data-filter='uk'></div>
   </figure>
 
   <figure class='chart'>
+    <div class='chart__meta'>
+      <h4 class='chart__meta-title'>{{{doc.dukeTitle}}}</h4>
+      <p class='chart__meta-sub'>{{{doc.dukeSub}}}</p>
+    </div>
     <div class='chart__flow' data-filter='duke'></div>
   </figure>
 
   <figure class='chart'>
+    <div class='chart__meta'>
+      <h4 class='chart__meta-title'>{{{doc.kansasTitle}}}</h4>
+      <p class='chart__meta-sub'>{{{doc.kansasSub}}}</p>
+    </div>
     <div class='chart__flow' data-filter='kansas'></div>
   </figure>
 </div>

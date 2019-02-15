@@ -1,7 +1,26 @@
 /* CUSTOM STORY STYLE */
-.chart__flow
+
+.chart
   max-width $column-width
   margin 0 auto
+  &__meta
+    padding 0 1rem
+    font-family $national
+    margin 1rem 0 2rem 0
+    &-title
+      font-weight bold
+      set-type-size('x-large')
+      margin 0
+      .top
+        color $orange
+      .unranked
+        color $blue
+    &-sub
+      set-type-size('small')
+      text-transform uppercase
+      margin 0
+
+.chart__flow
   height 550px
   position relative
   canvas
