@@ -6,16 +6,19 @@ let $sel = []
 
 // selections
 const $charts = d3.selectAll('.chart__flow')
+let chart = null
 
 function setupCharts(){
 	$sel = d3.select(this)
 
-	const chart = $sel
+	chart = $sel
 		.datum(data)
 		.createFlow()
 }
 
-function resize() {}
+function resize() {
+	chart.resize()
+}
 
 function init() {
 	Promise.all([loadData()])

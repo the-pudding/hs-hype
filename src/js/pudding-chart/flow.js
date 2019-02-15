@@ -64,6 +64,14 @@ d3.selection.prototype.createFlow = function init(options) {
       };
     }
 
+    const annotationData = [{
+      rank: 1,
+      text: '#1'
+    }, {
+      rank: 100,
+      text: '#100'
+    }]
+
 		// scales
 		const scaleX = d3.scaleLinear();
     const scaleXUnderdogs = d3.scaleLinear()
@@ -82,6 +90,8 @@ d3.selection.prototype.createFlow = function init(options) {
     let $stops = null;
     let $labels = null
     let $annotations = null
+    let rankAnn = null
+    let underdogAnn = null
 
     // animation constants
     //let ease = d3.easeBounceOut()
@@ -215,26 +225,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         $annotations = $g.append('g').attr('class', 'g-annotations')
 
-				// offset chart for margins
-				//$g.attr('transform', `translate(${marginLeft}, ${marginTop})`);
-
-				// create axis
-				$axis = $svg.append('g').attr('class', 'g-axis');
-
         const $allStops = $svg.append('g').attr('class', 'g-stops')
-
-
-        //const popped = bpKeys.pop()
-
-        // $stops = $allStops.selectAll('.stop-group')
-        //   .data(bpKeys)
-        //   .enter()
-        //   .append('g')
-        //   .attr('class', 'stop-group')
-        //   .attr('data-bp', (d, i) => bpKeys[i])
-        //
-        // $stops
-        //   .append('rect')
 
 
         $labels = $allLabels.selectAll('.g-label')
@@ -283,15 +274,49 @@ d3.selection.prototype.createFlow = function init(options) {
         percentSelectors.great.bottom = $svg.selectAll('.percentage__underdog-great')
         percentSelectors.allstar.top = $svg.selectAll('.percentage__top-allstar')
         percentSelectors.allstar.bottom = $svg.selectAll('.percentage__underdog-allstar')
-        console.log({percentSelectors})
-        // const $collegePerTop = $svg.select('.percentage__top-college')
-        // const $collegePerUnder = $labels.select('.percentage__underdog-college').node()
-        // console.log({$collegePerTop})
 
-        //$collegePerTop = $collegeLab.select('.percentage__top')
-        //console.log({$collegeLab})
-				// setup viz group
 				$vis = $g.append('g').attr('class', 'g-vis');
+
+
+        rankAnn = $annotations
+          .selectAll('.annotations__rank')
+          .data(annotationData)
+          .enter()
+          .append('g')
+          .attr('class', 'annotations__rank')
+          .raise()
+
+        rankAnn
+          .append('circle')
+          .attr('r', radius + 1)
+
+        rankAnn
+          .append('text')
+          .text(d => d.text)
+          .attr('alignment-baseline', 'baseline')
+          .attr('text-anchor', 'middle')
+
+        rankAnn
+          .append('line')
+          .attr('x1', 0)
+          .attr('x2', 0)
+
+        underdogAnn = $annotations
+          .append('g')
+          .attr('class', 'annotations__underdog')
+
+
+        underdogAnn
+          .append('text')
+          .text('not in Top 100')
+          .attr('alignment-baseline', 'middle')
+          .attr('text-anchor', 'middle')
+
+        underdogAnn
+          .append('line')
+          .attr('y1', 0)
+          .attr('y2', 0)
+          .attr('x1', 0)
 
 				Chart.resize();
 				Chart.render();
@@ -321,13 +346,8 @@ d3.selection.prototype.createFlow = function init(options) {
 
         rectHeight = height * 0.05
 
-        // scale up the stop boxes
-        // $stops.selectAll('rect')
-        //   .attr('width', stopSectionWidth)
-        //   .attr('height', rectHeight)
-        //   .attr('transform', (d, i) => `translate(0, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
         $labels.selectAll('.label')
-          .attr('transform', (d, i) => `translate(${width / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+          .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / 2}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
         $labels.selectAll('.percentage__top')
           .attr('transform', (d, i) => `translate(${width - stopSectionWidth - padding}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
@@ -335,6 +355,19 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels.selectAll('.percentage__underdog')
           .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
 
+        rankAnn.attr('transform', d =>`translate(${scaleX(d.rank)}, ${marginTop + (height * breakPoints.highSchool)})`)
+
+        rankAnn.selectAll('line')
+          .attr('y1', d => breakPoints.highSchool - (rectHeight / 2) + (radius / 2))
+          .attr('y2', d => -radius)
+
+        rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
+
+        underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
+
+        underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
+
+        underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
           // setup data for canvas
           data.forEach(d => {
             //const yPos = height * breakPoints[d.highest] + marginTop
@@ -356,98 +389,6 @@ d3.selection.prototype.createFlow = function init(options) {
 			render() {
 
         timer = d3.timer(moveCircles)
-
-        let sub = data.slice(0, 3)
-        //let sub = data.filter(d => d.recruit_year >= 2005)
-        // console.log({data, sub})
-
-        const groups = $vis.selectAll('.player')
-          .data(sub)
-          .enter()
-          .append('g')
-          .attr('class', 'player')
-
-        // const dots = groups
-        //   .append('circle')
-        //   .attr('r', radius)
-        //   .style('fill', d => d.top == 0 ? '#5371AB' : '#F46C23')//d => colorScale(d.rank))
-        //   .attr('opacity', 0.3)
-        //   .attr('transform', d => {
-        //     let xPos = null
-        //     if (d.top == 0){
-        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
-        //     } else xPos = scaleX(d.rank)
-        //
-        //     return `translate(${xPos}, ${breakPoints.highSchool})`})
-        //   .transition()
-        //   .duration(5000)
-        //   .delay((d, i) => Math.random() * 25000)
-        //   .ease(bounce(0.1))
-        //   .attr('transform', d => {
-        //     let xPos = null
-        //     if (d.top == 0){
-        //       xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
-        //     } else xPos = scaleX(d.rank)
-        //
-        //     return `translate(${xPos}, ${height * breakPoints[d.highest]})`})
-
-
-          const annotationData = [{
-            rank: 1,
-            text: '#1'
-          }, {
-            rank: 100,
-            text: '#100'
-          }]
-
-          const rankAnn = $annotations
-            .selectAll('.annotations__rank')
-            .data(annotationData)
-            .enter()
-            .append('g')
-            .attr('class', 'annotations__rank')
-            .attr('transform', d =>`translate(${scaleX(d.rank)}, ${marginTop + (height * breakPoints.highSchool)})`)
-            .raise()
-
-          rankAnn
-            .append('circle')
-            .attr('r', radius + 1)
-
-          rankAnn
-            .append('text')
-            .text(d => d.text)
-            .attr('alignment-baseline', 'baseline')
-            .attr('text-anchor', 'middle')
-            .attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
-
-          rankAnn
-            .append('line')
-            .attr('x1', 0)
-            .attr('x2', 0)
-            .attr('y1', d => breakPoints.highSchool - (rectHeight / 2) + (radius / 2))
-            .attr('y2', d => -radius)
-
-          const underdogAnn = $annotations
-            .append('g')
-            .attr('class', 'annotations__underdog')
-            .attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
-
-          underdogAnn
-            .append('text')
-            .text('not in Top 100')
-            .attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
-            .attr('alignment-baseline', 'middle')
-            .attr('text-anchor', 'middle')
-
-          underdogAnn
-            .append('line')
-            .attr('y1', 0)
-            .attr('y2', 0)
-            .attr('x1', 0)
-            .attr('x2', stopSectionWidth - radius)
-            //.attr('transform', d => `translate(0, ${- (rectHeight / 4)})`)
-
-
 
 				return Chart;
 			},
