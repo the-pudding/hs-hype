@@ -13,7 +13,6 @@ d3.selection.prototype.createFlow = function init(options) {
     const filter = $sel.datum().filter
 		let masterData = $sel.datum().filteredData;
     let data = masterData.map(d => ({...d}))
-    console.log({masterData, data})
     let timer = null
 		// dimension stuff
 		let width = 0;
@@ -264,7 +263,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
 
-        if (filter != "ranked" && filter != "top10"){
+        if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
           $labels
             .append('text')
             .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
@@ -289,8 +288,6 @@ d3.selection.prototype.createFlow = function init(options) {
         percentSelectors.great.bottom = $svg.selectAll('.percentage__underdog-great')
         percentSelectors.allstar.top = $svg.selectAll('.percentage__top-allstar')
         percentSelectors.allstar.bottom = $svg.selectAll('.percentage__underdog-allstar')
-
-        console.log({percentSelectors})
 
 				$vis = $g.append('g').attr('class', 'g-vis');
 
@@ -318,7 +315,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('x1', 0)
           .attr('x2', 0)
 
-        if (filter != "ranked" && filter != "top10"){
+        if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
           underdogAnn = $annotations
             .append('g')
             .attr('class', 'annotations__underdog')
@@ -357,7 +354,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         stopSectionWidth = width * 0.25
 
-        if (filter === "ranked"){
+        if (filter === "ranked" || filter === "skipCollege"){
           scaleX
             .range([marginLeft, width - marginRight])
             .domain([1, 100])
@@ -390,7 +387,7 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels.selectAll('.label')
           .attr('transform', (d, i) => {
             let xPos = null
-            if (filter == "ranked"|| filter == "top10") xPos = width / 2
+            if (filter == "ranked"|| filter == "top10" || filter == "skipCollege") xPos = width / 2
             else xPos = (width - stopSectionWidth) / 2
 
             return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
@@ -399,7 +396,7 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels.selectAll('.percentage__top')
           .attr('transform', (d, i) => {
             let xPos = null
-            if (filter == "ranked" || filter == "top10") xPos = width
+            if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width
             else xPos = width - stopSectionWidth - padding
 
             return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
@@ -414,7 +411,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
 
-        if (filter != "ranked" && filter != "top10"){
+        if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
           underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
 
           underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)

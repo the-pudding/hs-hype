@@ -1,12 +1,15 @@
 <div class='intro'>
 	<h1 class='intro__hed'>{{doc.title}}</h1>
 	<p class='intro__dek'>{{doc.dek}}</p>
-	<p class='intro__byline'>By
-		<a href='{{meta.author.url}}' target='_blank'>
-			<strong>{{meta.author.name}}</strong>
-		</a>
-	</p>
-	<time class='intro__time'>{{doc.date}}</time>
+	<div class='intro__line'>
+		<p class='intro__byline'>By
+			<a href='{{doc.author1URL}}' target='_blank'>
+				<strong>{{doc.author1}}</strong>
+			</a> & <a href='{{doc.author2URL}}' target='_blank'><strong>{{doc.author2}}</strong></a>
+		</p>
+		<p class='emoji'>🏀</p>
+		<time class='intro__time'>{{doc.date}}</time>
+	</div>
 
 	{{#each doc.intro}}
 		<p class='prose'>{{{value}}}</p>
@@ -20,6 +23,7 @@
 		<div class='chart__flow' data-filter='ranked'></div>
 	</figure>
 
+	<p class='prose'>{{{doc.top10}}}</p>
 
 	<figure class='chart'>
 		<div class='chart__meta'>
@@ -27,5 +31,15 @@
 			<p class='chart__meta-sub'>{{{doc.top10Sub}}}</p>
 		</div>
 		<div class='chart__flow' data-filter='top10'></div>
+	</figure>
+
+	<p class='prose'>{{{doc.postTop10}}}</p>
+
+	<figure class='chart'>
+		<div class='chart__meta'>
+			<h4 class='chart__meta-title'>{{{doc.skipTitle}}}</h4>
+			<p class='chart__meta-sub'>{{{doc.skipSub}}}</p>
+		</div>
+		<div class='chart__flow' data-filter='skipCollege'></div>
 	</figure>
 </div>

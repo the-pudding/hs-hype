@@ -1,5 +1,6 @@
 import loadData from './load-data'
 import './pudding-chart/flow'
+import EnterView from 'enter-view'
 
 let data = []
 let $sel = []
@@ -11,7 +12,6 @@ let chart = null
 function setupCharts(){
 	$sel = d3.select(this)
 	const filter = $sel.attr('data-filter')
-	console.log({filter})
 
 	let filteredData = null
 	if (filter == "ranked") filteredData = data.filter(d => d.top === 1)
@@ -21,14 +21,28 @@ function setupCharts(){
 	if (filter == "uk") filteredData = data.filter(d => d.college === 'University of Kentucky')
 	if (filter == "duke") filteredData = data.filter(d => d.college === 'Duke University')
 	if (filter == 'kansas') filteredData = data.filter(d => d.college === 'University of Kansas')
+	if (filter == 'skipCollege') filteredData = data.filter(d => d.coll === 2)
 
 	let indicators = {filteredData, filter}
-	console.log({indicators})
 
 	chart = $sel
 		.datum(indicators)
 		.createFlow()
+
+	//setupFigureEnter()
 }
+
+// function setupFigureEnter(){
+// 	EnterView({
+// 		selector: '.chart',
+// 		enter: function(el){
+// 			console.log({el, chart})
+// 			chart.render()
+// 		},
+// 		offset: 0.5,
+// 		once: true
+// 	})
+// }
 
 function resize() {
 	chart.resize()
