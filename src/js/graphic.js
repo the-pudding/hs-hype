@@ -16,7 +16,7 @@ function setupCharts(){
 	let filteredData = null
 	if (filter == "ranked") filteredData = data.filter(d => d.top === 1)
 	if (filter == "top10") filteredData = data.filter(d => d.top === 1 && d.rank <= 10)
-	if (filter == "none") filteredData = data
+	if (filter == "none") filteredData = data.filter(d => d.top === 0 || (d.top === 1 && d.draft === 1))
 	if (filter == "unc") filteredData = data.filter(d => d.college === 'University of North Carolina')
 	if (filter == "uk") filteredData = data.filter(d => d.college === 'University of Kentucky')
 	if (filter == "duke") filteredData = data.filter(d => d.college === 'Duke University')
