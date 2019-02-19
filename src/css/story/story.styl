@@ -20,6 +20,28 @@
       text-transform uppercase
       margin 0
 
+    &-replay
+      font-family $national
+      background-color: $bg
+      padding 0.25rem 0.5rem
+      border 1px solid $brown
+      color $brown
+      display flex
+      justify-content: center;
+      align-items: center
+      set-type-size('small')
+      text-transform uppercase
+      font-weight bold
+      margin-top 0.5rem
+      transition background-color 200ms ease-in-out
+      svg
+        stroke $brown
+        transform scale(0.8)
+        margin 0 0 0 0.2rem
+      &:hover
+        background-color: lighten($orange, 35)
+        transition 200ms ease-in-out
+
 .chart__flow
   height 550px
   position relative
