@@ -23,8 +23,8 @@ d3.selection.prototype.createFlow = function init(options) {
     let rectHeight = 0
 		const marginTop = 32;
 		const marginBottom = 32;
-		const marginLeft = 32;
-		const marginRight = 32;
+		const marginLeft = 40;
+		const marginRight = 20;
     const padding = 8
 
     const topCount = data.filter(d => d.top === 1).length
@@ -104,6 +104,7 @@ d3.selection.prototype.createFlow = function init(options) {
     let $annotations = null
     let rankAnn = null
     let underdogAnn = null
+		let $bg = null
 
 		const delayScale = d3.scaleLinear()
 			.domain([30, 2000])
@@ -232,6 +233,8 @@ d3.selection.prototype.createFlow = function init(options) {
 
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
 
+				$bg = $svg.append('g').attr('class', 'g-bg')
+
 
         const $allLabels = $svg.append('g').attr('class', 'g-labels')
 
@@ -242,6 +245,11 @@ d3.selection.prototype.createFlow = function init(options) {
         $annotations = $g.append('g').attr('class', 'g-annotations')
 
         const $allStops = $svg.append('g').attr('class', 'g-stops')
+
+
+
+				$bg.append('rect').attr('class', 'bg-block')
+				$bg.append('text').text('NBA career')
 
 
         $labels = $allLabels.selectAll('.g-label')
@@ -255,9 +263,12 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('class', 'label')
           .text(d => {
             if(d === 'highSchool') return 'high school'
-            else if (d === 'bad' || d === 'good' || d === 'great' || d === "allstar"){
-              return `${d} in NBA`
-            }
+            else if (d === 'bad') return 'below average'
+						else if (d === 'good') return 'mediocre'
+						else if (d === 'great') return 'great'
+						else if (d === 'allstar') return 'superstar'
+						else if (d === 'draft') return `drafted`
+						else if (d === 'rookie') return `< 2 years in NBA`
             else return d})
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'middle')
@@ -392,6 +403,17 @@ d3.selection.prototype.createFlow = function init(options) {
             .range([(stopSectionWidth + marginLeft), 0])
             .domain([0, 1])
         }
+
+				$bg.selectAll('.bg-block')
+					.attr('width', width / DPR)
+					.attr('height', height / DPR - (height / DPR * breakPoints.rookie))
+					.attr('x', 0)
+					.attr('y', height / DPR * breakPoints.bad)
+					.lower()
+
+				$bg.selectAll('text')
+					.attr('transform', `translate(${marginLeft / 2}, ${(height / DPR) * 6/7 })rotate(-90)`)
+					.attr('text-anchor', 'middle')
 
 
 
