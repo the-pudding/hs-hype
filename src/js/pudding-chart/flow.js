@@ -103,13 +103,17 @@ d3.selection.prototype.createFlow = function init(options) {
     let rankAnn = null
     let underdogAnn = null
 
+		const delayScale = d3.scaleLinear()
+			.domain([30, 2000])
+			.range([3000, 15000])
+
     // animation constants
     //let ease = d3.easeBounceOut()
     let duration = 5000
     let delay = function(d){
-      return Math.random() * 25000
+      return Math.random() * delayScale(data.length)
     }
-    let maxDelay = 25000
+    let maxDelay = delayScale(data.length)
     let timeScale = d3.scaleLinear()
       .domain([0, duration])
       .range([0, 1])
@@ -212,7 +216,7 @@ d3.selection.prototype.createFlow = function init(options) {
       })
       drawCircles()
       if(t >= duration + maxDelay) {
-        timer.stop()
+        //timer.stop()
       }
     }
 
