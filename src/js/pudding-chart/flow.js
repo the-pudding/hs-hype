@@ -14,6 +14,8 @@ d3.selection.prototype.createFlow = function init(options) {
 		let masterData = $sel.datum().filteredData;
     let data = masterData.map(d => ({...d}))
     let timer = null
+		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
+		console.log({DPR})
 		// dimension stuff
 		let width = 0;
 		let height = 0;
@@ -200,7 +202,7 @@ d3.selection.prototype.createFlow = function init(options) {
           xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
         } else xPos = scaleX(d.rank)
         $context.moveTo(xPos, d.y)
-        $context.arc(xPos, d.y, radius, 0, 2 * Math.PI)
+        $context.arc(xPos, d.y, radius * DPR, 0, 2 * Math.PI)
         $context.fill()
       })
     }
@@ -346,21 +348,28 @@ d3.selection.prototype.createFlow = function init(options) {
 			// on resize, update new dimensions
 			resize() {
 				// defaults to grabbing dimensions from container element
-				width = $sel.node().offsetWidth - marginLeft - marginRight;
-				height = $sel.node().offsetHeight - marginTop - marginBottom;
+				let normalWidth = $sel.node().offsetWidth - marginLeft - marginRight
+				width = normalWidth * DPR;
+				let normalHeight = $sel.node().offsetHeight ;
+				height = $sel.node().offsetHeight * DPR - marginTop - marginBottom
+
 				$svg
-					.attr('width', width + marginLeft + marginRight)
-					.attr('height', height + marginTop + marginBottom);
+					.attr('width', (width + marginLeft + marginRight) / DPR)
+					.attr('height', (height + marginTop + marginBottom) / DPR);
 
         $canvas
           .attr('width', width + marginLeft + marginRight)
-          .attr('height', height + marginTop + marginBottom);
+          .attr('height', height + marginTop + marginBottom)
+					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
+					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
+
+					console.log({width, height})
 
         stopSectionWidth = width * 0.25
 
         if (filter === "ranked" || filter === "skipCollege"){
           scaleX
-            .range([marginLeft, width - marginRight])
+            .range([marginLeft, (width - marginRight)])
             .domain([1, 100])
 
           scaleXUnderdogs
@@ -368,7 +377,7 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else if (filter === "top10"){
           scaleX
-            .range([marginLeft, width - marginRight])
+            .range([marginLeft, (width - marginRight)])
             .domain([1, 10])
 
           scaleXUnderdogs
@@ -376,64 +385,64 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else {
           scaleX
-            .range([marginLeft, width - stopSectionWidth - padding])
+            .range([marginLeft, (width - stopSectionWidth - padding)])
             .domain([1, 100])
 
           scaleXUnderdogs
-            .range([stopSectionWidth + marginLeft, 0])
+            .range([(stopSectionWidth + marginLeft), 0])
             .domain([0, 1])
         }
 
 
 
-        rectHeight = height * 0.05
+        rectHeight = (height * 0.05)
 
         $labels.selectAll('.label')
           .attr('transform', (d, i) => {
             let xPos = null
-            if (filter == "ranked"|| filter == "top10" || filter == "skipCollege") xPos = width / 2
-            else xPos = (width - stopSectionWidth) / 2
+            if (filter == "ranked"|| filter == "top10" || filter == "skipCollege") xPos = (width / 2) / DPR
+            else xPos = ((width - stopSectionWidth) / 2) / DPR
 
-            return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
+            return `translate(${xPos}, ${(height * breakPoints[d] / DPR) - (rectHeight / 2 / DPR)})`
           })
 
         $labels.selectAll('.percentage__top')
           .attr('transform', (d, i) => {
             let xPos = null
-            if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width
-            else xPos = width - stopSectionWidth - padding
+            if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width / DPR
+            else xPos = (width - stopSectionWidth - padding) / DPR
 
-            return `translate(${xPos}, ${(height * breakPoints[d]) - (rectHeight / 2)})`
+            return `translate(${xPos}, ${(height / DPR * breakPoints[d]) - (rectHeight / 2 / DPR)})`
           })
 
 
-        rankAnn.attr('transform', d =>`translate(${scaleX(d.rank)}, ${marginTop + (height * breakPoints.highSchool)})`)
+        rankAnn.attr('transform', d =>`translate(${scaleX(d.rank) / DPR}, ${marginTop + ((height / DPR) * breakPoints.highSchool)})`)
 
         rankAnn.selectAll('line')
-          .attr('y1', d => breakPoints.highSchool - (rectHeight / 2) + (radius / 2))
+          .attr('y1', d => ((height * breakPoints.highSchool) - (rectHeight / 2) + (radius / 2)) / DPR)
           .attr('y2', d => -radius)
 
-        rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2)})`)
+        rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2 / DPR)})`)
 
         if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
-          underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height * breakPoints.highSchool)})`)
+          underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height / DPR * breakPoints.highSchool)})`)
 
-          underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5)}, ${ - (rectHeight / 2)})`)
+          underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5) / DPR}, ${ - (rectHeight / 2)})`)
 
           underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
 
           $labels.selectAll('.percentage__underdog')
-            .attr('transform', (d, i) => `translate(${width - stopSectionWidth}, ${(height * breakPoints[d]) - (rectHeight / 2)})`)
+            .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / DPR}, ${(height * breakPoints[d] / DPR) - (rectHeight / 2)})`)
         }
 
 
           // setup data for canvas
           data.forEach(d => {
             //const yPos = height * breakPoints[d.highest] + marginTop
-            d.y = height * breakPoints[d.highest] + marginTop,
+            d.y = height * breakPoints[d.highest] + (marginTop * DPR),
 
             d.trans = {
-              i: d3.interpolate(marginTop, d.y),
+              i: d3.interpolate((marginTop * DPR), d.y),
               delay: delay(d)
             }
             if (d.trans.delay > maxDelay) {
