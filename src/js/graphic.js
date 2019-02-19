@@ -9,6 +9,8 @@ let $sel = []
 const $charts = d3.selectAll('.chart__flow')
 let charts = {}
 
+let $buttons = d3.selectAll('.chart__meta-replay')
+
 function setupCharts(){
 	$sel = d3.select(this)
 	const filter = $sel.attr('data-filter')
@@ -47,6 +49,11 @@ function setupFigureEnter(){
 	})
 }
 
+function handleButtonClick(){
+	const button = d3.select(this).attr('data-filter')
+	charts[button].render()
+}
+
 function resize() {
 	Object.keys(charts).forEach(d => charts[d].resize())
 	//charts.each.resize()
@@ -57,6 +64,7 @@ function init() {
 			.then((results) => {
 				data = results[0]
 				$charts.each(setupCharts)
+				$buttons.on('click', handleButtonClick)
 			})
 			.catch(err => console.log(err))
 }
