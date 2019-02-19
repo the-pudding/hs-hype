@@ -7,7 +7,7 @@ let $sel = []
 
 // selections
 const $charts = d3.selectAll('.chart__flow')
-let chart = null
+let charts = {}
 
 function setupCharts(){
 	$sel = d3.select(this)
@@ -25,27 +25,31 @@ function setupCharts(){
 
 	let indicators = {filteredData, filter}
 
-	chart = $sel
+	charts[filter] = $sel
 		.datum(indicators)
 		.createFlow()
 
-	//setupFigureEnter()
+
+
+	setupFigureEnter()
 }
 
-// function setupFigureEnter(){
-// 	EnterView({
-// 		selector: '.chart',
-// 		enter: function(el){
-// 			console.log({el, chart})
-// 			chart.render()
-// 		},
-// 		offset: 0.5,
-// 		once: true
-// 	})
-// }
+function setupFigureEnter(){
+	EnterView({
+		selector: '.chart__flow',
+		enter: function(el, i){
+			const fil = d3.select(el).attr('data-filter')
+			const rend = charts[fil]
+			rend.render()
+		},
+		offset: 0.25,
+		once: true
+	})
+}
 
 function resize() {
-	chart.resize()
+	Object.keys(charts).forEach(d => charts[d].resize())
+	//charts.each.resize()
 }
 
 function init() {

@@ -337,7 +337,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
 
 				Chart.resize();
-				Chart.render();
+				//Chart.render();
 			},
 			// on resize, update new dimensions
 			resize() {
@@ -452,7 +452,7 @@ d3.selection.prototype.createFlow = function init(options) {
 				if (!arguments.length) return data;
 				data = val;
 				$sel.datum(data);
-				Chart.render();
+				//Chart.render();
 				return Chart;
 			}
 		};
