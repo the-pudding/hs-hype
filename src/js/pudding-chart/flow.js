@@ -13,7 +13,8 @@ d3.selection.prototype.createFlow = function init(options) {
     const filter = $sel.datum().filter
 		let masterData = $sel.datum().filteredData;
     let data = masterData.map(d => ({...d}))
-    let timer = null
+		let timer = null
+		let elapsedTime = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
 
 		// dimension stuff
@@ -22,7 +23,7 @@ d3.selection.prototype.createFlow = function init(options) {
     let radius = 3
     let rectHeight = 0
 		const marginTop = 32;
-		const marginBottom = 50;
+		const marginBottom = 100;
 		const marginLeft = 50;
 		const marginRight = 20;
     const padding = 8
@@ -227,6 +228,7 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     function moveCircles(t){
+			elapsedTime = t
       data.forEach(d => {
         const del = d.trans.delay
         let time = d3.easeBounceOut(timeScale(t - d.trans.delay))
@@ -237,9 +239,11 @@ d3.selection.prototype.createFlow = function init(options) {
       })
       drawCircles()
       if(t >= duration + maxDelay) {
-        //timer.stop()
+        timer.stop()
       }
     }
+
+
 
 
 		const Chart = {
@@ -547,9 +551,14 @@ d3.selection.prototype.createFlow = function init(options) {
 			// update scales and render chart
 			render() {
 
-        timer = d3.timer(moveCircles)
+				timer = d3.timer(moveCircles)
+
+				//timer.restart()
 
 				return Chart;
+			},
+			pause(){
+				if (elapsedTime != null) timer.stop()
 			},
 			// get / set data
 			data(val) {
