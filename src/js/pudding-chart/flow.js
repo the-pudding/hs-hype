@@ -22,8 +22,8 @@ d3.selection.prototype.createFlow = function init(options) {
     let radius = 3
     let rectHeight = 0
 		const marginTop = 32;
-		const marginBottom = 32;
-		const marginLeft = 40;
+		const marginBottom = 50;
+		const marginLeft = 50;
 		const marginRight = 20;
     const padding = 8
 
@@ -147,6 +147,16 @@ d3.selection.prototype.createFlow = function init(options) {
       great: {},
       allstar: {}
     }
+
+		let countSelectors = {
+			college: {},
+			draft: {},
+			rookie: {},
+			bad: {},
+			good: {},
+			great: {},
+			allstar: {}
+		}
     // bpKeys.map(d => {
     //   return {[d]: []}
     // })
@@ -171,7 +181,9 @@ d3.selection.prototype.createFlow = function init(options) {
         const len = topPassMap.get(level).passed.length
         const sel = percentSelectors[level].top
 				const per = Math.round(len / topCount * 100, 0)
+				const count = countSelectors[level].top
         sel.text(per < 1 ? `<1 %` : `${per} %`)
+				count.text(level === 'college' ? `${len} players` : `${len}`)
       }
 
       if (top === 0){
@@ -180,6 +192,8 @@ d3.selection.prototype.createFlow = function init(options) {
         const sel = percentSelectors[level].bottom
 				const per = Math.round(len / underCount * 100, 0)
 				sel.text(per < 1 ? `<1 %` : `${per} %`)
+				const count = countSelectors[level].bottom
+				count.text(level === 'college' ? `${len} players` : `${len}`)
       }
 
         // if (top === 0){
@@ -266,7 +280,7 @@ d3.selection.prototype.createFlow = function init(options) {
           .append('text')
           .attr('class', 'label')
           .text(d => {
-            if(d === 'highSchool') return 'high school'
+            if(d === 'highSchool') return 'high school rank'
             else if (d === 'bad') return 'below average'
 						else if (d === 'good') return 'mediocre'
 						else if (d === 'great') return 'great'
@@ -284,13 +298,35 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
 
+				$labels
+					.append('text')
+					.attr('class', d => `count count__top count__top-${d}`)
+					.text(d => {
+						if (d === 'highSchool') return ''
+						else if (d === 'college') return '0 players'
+						else return '0'
+					})
+					.attr('alignment-baseline', 'middle')
+					.attr('text-anchor', 'end')
+
         if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
           $labels
             .append('text')
             .attr('class', d => `percentage percentage__underdog percentage__underdog-${d}`)
-            .text(d => d === 'highSchool' ? '' : '0%')
+						.text(d => {
+							if (d === 'highSchool') return ''
+							else if (d === 'college') return '0 players'
+							else return '0'
+						})
             .attr('alignment-baseline', 'middle')
             .attr('text-anchor', 'start')
+
+					$labels
+						.append('text')
+						.attr('class', d => `count count__underdog count__underdog-${d}`)
+						.text(d => d === 'highSchool' ? '' : '0')
+						.attr('alignment-baseline', 'middle')
+						.attr('text-anchor', 'start')
         }
 
 
@@ -309,6 +345,21 @@ d3.selection.prototype.createFlow = function init(options) {
         percentSelectors.great.bottom = $svg.selectAll('.percentage__underdog-great')
         percentSelectors.allstar.top = $svg.selectAll('.percentage__top-allstar')
         percentSelectors.allstar.bottom = $svg.selectAll('.percentage__underdog-allstar')
+
+				countSelectors.college.top = $svg.selectAll('.count__top-college')
+				countSelectors.college.bottom = $svg.selectAll('.count__underdog-college')
+				countSelectors.draft.top = $svg.selectAll('.count__top-draft')
+				countSelectors.draft.bottom = $svg.selectAll('.count__underdog-draft')
+				countSelectors.rookie.top = $svg.selectAll('.count__top-rookie')
+				countSelectors.rookie.bottom = $svg.selectAll('.count__underdog-rookie')
+				countSelectors.bad.top = $svg.selectAll('.count__top-bad')
+				countSelectors.bad.bottom = $svg.selectAll('.count__underdog-bad')
+				countSelectors.good.top = $svg.selectAll('.count__top-good')
+				countSelectors.good.bottom = $svg.selectAll('.count__underdog-good')
+				countSelectors.great.top = $svg.selectAll('.count__top-great')
+				countSelectors.great.bottom = $svg.selectAll('.count__underdog-great')
+				countSelectors.allstar.top = $svg.selectAll('.count__top-allstar')
+				countSelectors.allstar.bottom = $svg.selectAll('.count__underdog-allstar')
 
 				$vis = $g.append('g').attr('class', 'g-vis');
 
@@ -440,6 +491,17 @@ d3.selection.prototype.createFlow = function init(options) {
             return `translate(${xPos}, ${(height / DPR * breakPoints[d]) - (rectHeight / 2 / DPR)})`
           })
 
+				$labels.selectAll('.count__top')
+					.attr('transform', (d, i) => {
+						let xPos = null
+						if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width / DPR
+						else xPos = (width - stopSectionWidth - padding) / DPR
+
+						return `translate(${xPos}, ${(height / DPR * breakPoints[d]) + (rectHeight / 2 / DPR)})`
+					})
+
+
+
 
         rankAnn.attr('transform', d =>`translate(${scaleX(d.rank) / DPR}, ${marginTop + ((height / DPR) * breakPoints.highSchool)})`)
 
@@ -457,7 +519,11 @@ d3.selection.prototype.createFlow = function init(options) {
           underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
 
           $labels.selectAll('.percentage__underdog')
-            .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / DPR}, ${(height * breakPoints[d] / DPR) - (rectHeight / 2)})`)
+            .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / DPR}, ${(height * breakPoints[d] / DPR) - (rectHeight / 2 / DPR)})`)
+
+					$labels.selectAll('.count__underdog')
+            .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / DPR}, ${(height * breakPoints[d] / DPR) + (rectHeight / 2 / DPR)})`)
+
         }
 
 
