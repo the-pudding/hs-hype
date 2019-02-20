@@ -15,7 +15,7 @@ d3.selection.prototype.createFlow = function init(options) {
     let data = masterData.map(d => ({...d}))
     let timer = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
-		console.log({DPR})
+
 		// dimension stuff
 		let width = 0;
 		let height = 0;
@@ -29,6 +29,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
     const topCount = data.filter(d => d.top === 1).length
     const underCount = data.filter(d => d.top === 0).length
+		let test = 0
 
     const breakPoints = {
       highSchool: 0/7,
@@ -164,19 +165,22 @@ d3.selection.prototype.createFlow = function init(options) {
     function updatePercent(d, level, top){
       if (level === 'college') d.coll = 3
       else d[level] = 3
-        if (top === 1){
-          topPassMap.get(level).passed.push(1)
-          const len = topPassMap.get(level).passed.length
-          const sel = percentSelectors[level].top
-          sel.text(`${Math.round(len / topCount * 100, 0)} %`)
-        }
 
-        if (top === 0){
-          underPassMap.get(level).passed.push(1)
-          const len = underPassMap.get(level).passed.length
-          const sel = percentSelectors[level].bottom
-          sel.text(`${Math.round(len / underCount * 100, 0)} %`)
-        }
+      if (top === 1){
+        topPassMap.get(level).passed.push(1)
+        const len = topPassMap.get(level).passed.length
+        const sel = percentSelectors[level].top
+				const per = Math.round(len / topCount * 100, 0)
+        sel.text(per < 1 ? `<1 %` : `${per} %`)
+      }
+
+      if (top === 0){
+        underPassMap.get(level).passed.push(1)
+        const len = underPassMap.get(level).passed.length
+        const sel = percentSelectors[level].bottom
+				const per = Math.round(len / underCount * 100, 0)
+				sel.text(per < 1 ? `<1 %` : `${per} %`)
+      }
 
         // if (top === 0){
         //   if (point.y >= height * breakPoints[level]) passedLevel = true
@@ -374,8 +378,6 @@ d3.selection.prototype.createFlow = function init(options) {
 					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
 					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
 
-					console.log({width, height})
-
         stopSectionWidth = width * 0.25
 
         if (filter === "ranked" || filter === "skipCollege"){
@@ -405,11 +407,12 @@ d3.selection.prototype.createFlow = function init(options) {
         }
 
 				$bg.selectAll('.bg-block')
-					.attr('width', width / DPR)
+					.attr('width', (width + marginLeft + marginRight) / DPR)
 					.attr('height', height / DPR - (height / DPR * breakPoints.rookie))
 					.attr('x', 0)
 					.attr('y', height / DPR * breakPoints.bad)
 					.lower()
+					.attr('transform', `translate(${marginLeft, 0})`)
 
 				$bg.selectAll('text')
 					.attr('transform', `translate(${marginLeft / 2}, ${(height / DPR) * 6/7 })rotate(-90)`)
