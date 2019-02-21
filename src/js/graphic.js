@@ -30,9 +30,7 @@ function setupCharts(){
 		.datum(indicators)
 		.createFlow()
 
-
-
-	setupFigureEnter()
+	setTimeout(setupFigureEnter, 100)
 }
 
 function setupFigureEnter(){

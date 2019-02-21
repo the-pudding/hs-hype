@@ -62,7 +62,7 @@ d3.selection.prototype.smallMultiple = function init(options) {
 
         barGroup.append('p')
           .attr('class', 'bar-label')
-          .text(d => d.level === 'highSchool' ? `${Math.round(d.percent * 100)}%` : `${Math.round(d.percent * 100)}`)
+          .text(d => d.count)
 
 
 
@@ -74,13 +74,11 @@ d3.selection.prototype.smallMultiple = function init(options) {
 				// defaults to grabbing dimensions from container element
         scaleX
           .range([1, 100])
-          .domain([0, 1])
+          .domain([0, 42])
 
-        console.log(scaleX(1))
-        console.log(scaleX(0.5))
 
         d3.selectAll('.bar')
-          .style('width', d => `${Math.round(scaleX(d.percent))}px`)
+          .style('width', d => `${Math.round(scaleX(d.count))}px`)
           .style('height', '10px')
 				return Chart;
 			},

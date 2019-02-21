@@ -550,7 +550,7 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
-
+				if (timer) timer.stop()
 				timer = d3.timer(moveCircles)
 
 				//timer.restart()
@@ -558,7 +558,11 @@ d3.selection.prototype.createFlow = function init(options) {
 				return Chart;
 			},
 			pause(){
-				if (elapsedTime != null) timer.stop()
+				if (timer) {
+
+					timer.stop()
+					moveCircles(duration + maxDelay)
+				}
 			},
 			// get / set data
 			data(val) {
