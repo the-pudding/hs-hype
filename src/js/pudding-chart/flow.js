@@ -209,7 +209,7 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     function drawCircles(point){
-      $context.clearRect(0, 0, width + marginLeft + marginRight, height + marginTop + marginBottom)
+      $context.clearRect(0, 0, width + (marginLeft * DPR) + (marginRight * DPR), height + marginTop + marginBottom)
       data.forEach(function(d){
           if (d.top === 0){
             $context.fillStyle = 'rgba(83, 113, 171, 0.3)'
@@ -429,7 +429,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         $canvas
           .attr('width', width + (marginLeft * DPR) + (marginRight * DPR))
-          .attr('height', height + (marginTop * DPR) + (marginBottom * DPR))
+          .attr('height', height + (marginTop) + (marginBottom))
 					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
 					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
 
