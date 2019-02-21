@@ -428,8 +428,8 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('height', (height + marginTop + marginBottom) / DPR);
 
         $canvas
-          .attr('width', width + marginLeft + marginRight)
-          .attr('height', height + marginTop + marginBottom)
+          .attr('width', width + (marginLeft * DPR) + (marginRight * DPR))
+          .attr('height', height + (marginTop * DPR) + (marginBottom * DPR))
 					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
 					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
 
@@ -445,7 +445,7 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else if (filter === "top10"){
           scaleX
-            .range([marginLeft, (width - marginRight)])
+            .range([(marginLeft * DPR), (width - (marginRight * DPR))])
             .domain([1, 10])
 
           scaleXUnderdogs
@@ -453,11 +453,11 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else {
           scaleX
-            .range([marginLeft, (width - stopSectionWidth - padding)])
+            .range([(marginLeft * DPR), (width - stopSectionWidth - padding)])
             .domain([1, 100])
 
           scaleXUnderdogs
-            .range([(stopSectionWidth + marginLeft), 0])
+            .range([(stopSectionWidth + (marginLeft * DPR)), 0])
             .domain([0, 1])
         }
 
@@ -470,7 +470,7 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('transform', `translate(${marginLeft, 0})`)
 
 				$bg.selectAll('text')
-					.attr('transform', `translate(${marginLeft / 2}, ${(height / DPR) * 6/7 })rotate(-90)`)
+					.attr('transform', `translate(${(marginLeft) / 2}, ${(height / DPR) * 6/7 })rotate(-90)`)
 					.attr('text-anchor', 'middle')
 
 
