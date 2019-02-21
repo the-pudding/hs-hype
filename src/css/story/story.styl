@@ -110,7 +110,17 @@
   flex-wrap wrap
   margin 0 auto
   max-width $column-width
-.multiple, .multKey
+.multiple
+  width 140px
+  margin 1rem 0.95rem
+  +mq('bp-4')
+    margin 1rem 2rem
+  .bar-label
+    font-family $national
+    set-type-size('small')
+    margin-left 5px
+    color lighten($brown, 20)
+    width 34px
   .meta
     font-family $national
     margin-bottom 0.5rem
@@ -152,26 +162,53 @@
     //   .bar
     //     background-color $blue
 
-.multiple
-  width 140px
-  margin 1rem 0.95rem
-  +mq('bp-4')
-    margin 1rem 2rem
-  .bar-label
-    font-family $national
-    set-type-size('small')
-    margin-left 5px
-    color lighten($brown, 20)
-    width 34px
+
 .key-container
   max-width $column-width
   margin 0 auto
-.multKey
-  width 300px
-  margin 0 auto
-  .bar-label
-    font-family $national
-    set-type-size('small')
-    margin-left 5px
-    color lighten($brown, 20)
-    width 142px
+  .multKey
+    width 300px
+    margin 0 auto
+    padding 0 1rem
+    position relative
+    .meta
+      position absolute
+      transform translate(-15px, 55px) rotate(-90deg)
+      font-family $national
+      set-type-size('small')
+      color lighten($brown, 20)
+    .barChart
+      display flex
+      flex-direction row
+
+      .gbar
+        display flex
+        flex-direction row
+
+      .label
+        font-family $national
+        set-type-size('small')
+        color lighten($brown, 20)
+        text-align right
+        align-self flex-end
+        padding 0 10px
+        &-bad, &-good, &-great, &-allstar
+          background-color darken($bg, 4)
+        &-bad
+          border-top 1px dashed $brown
+      .barsOnly
+        display flex
+        flex-direction column
+        align-items: center
+      .barContainer
+        height 18px
+        padding 4px
+        width 150px
+        display flex
+        justify-content: center;
+        &-bad, &-good, &-great, &-allstar
+          background-color darken($bg, 4)
+        &-bad
+          border-top 1px dashed $brown
+      .bar
+        background-color $orange

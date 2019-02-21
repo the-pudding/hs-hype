@@ -22,18 +22,23 @@ function addLevels(leaves, level){
         if (d.bad != "" || d.good != "" || d.great != "" || d.allstar != "") total += 1
       }
       else if (level === 'good') {
-        if (d.good != "" || d.great != "" || d.allstar != "") total += 1
+        if (d.good !== "" || d.great !== "" || d.allstar !== "") total += 1
       } else if (level === 'great') {
-        if (d.great != "" || d.allstar != "") total += 1
+        if (d.great !== "" || d.allstar !== "") total += 1
       }
     }
-    else if (d[level] != "") total += 1
+    else if (d[level] !== "") total += 1
   })
   return total
 }
 
 function setupChart(){
   const filtered = data.filter(d => +d.smallMult === 1)
+
+  let uk = filtered.filter(d => d.college === "University of Kentucky")
+  let jules = data.filter(d => d.name === 'Jules Camara')
+  console.log({uk, jules})
+
   nested = d3.nest()
     .key(d => d.college)
     .rollup(leaves => {
@@ -74,6 +79,7 @@ function setupChart(){
     .entries(filtered)
     .sort((a, b) => d3.descending(a.value[0].count, b.value[0].count))
 
+      console.log({nested})
   const charts = $container
     .selectAll('.multiple')
     .data(nested)
@@ -90,34 +96,68 @@ function setupKey(){
     .range([1, 130])
     .domain([0, 100])
 
-  const meta = $keyContainer.append('div')
+  const meta = $keyContainer.append('p')
     .attr('class', 'meta')
+    .text('NBA Career')
 
   const chart = $keyContainer.append('div')
     .attr('class', 'barChart')
 
-  const barGroup = chart.selectAll('.g-bar')
+  const bars = chart.append('div')
+    .attr('class', 'barsOnly')
+
+  const barContainer = bars.selectAll('.barContainer')
     .data(keyData)
     .enter()
     .append('div')
-    .attr('class', d => `g-bar g-bar-${d.level}`)
+    .attr('class', d => `barContainer barContainer-${d.level}`)
 
-  barGroup.append('div')
+  barContainer.append('div')
     .attr('class', 'bar')
     .style('width', d => `${Math.round(scaleX(d.percent * 100))}px`)
     .style('height', '10px')
 
-  barGroup.append('p')
-    .attr('class', 'bar-label')
+  const labels = chart.append('div')
+    .attr('class', 'labelsOnly')
+
+  const label = labels.selectAll('.label')
+    .data(keyData)
+    .enter()
+    .append('div')
+    .attr('class', d => `label label-${d.level}`)
     .text(d => {
       if(d.level === 'highSchool') return 'high school'
-      else if (d.level === 'bad') return 'below average NBA career'
-      else if (d.level === 'good') return 'mediocre NBA career'
-      else if (d.level === 'great') return 'great NBA career'
-      else if (d.level === 'allstar') return 'superstar NBA career'
+      else if (d.level === 'bad') return 'below average'
+      else if (d.level === 'good') return 'mediocre'
+      else if (d.level === 'great') return 'great'
+      else if (d.level === 'allstar') return 'superstar'
       else if (d.level === 'draft') return `drafted`
-      else if (d.level === 'rookie') return `< 2 years in NBA`
+      else if (d.level === 'rookie') return `< 3 years in NBA`
       else return d.level})
+
+
+  // const barGroup = chart.selectAll('.g-bar')
+  //   .data(keyData)
+  //   .enter()
+  //   .append('div')
+  //   .attr('class', d => `g-bar g-bar-${d.level}`)
+  //
+  // barGroup.append('div')
+  //   .attr('class', 'bar')
+  //   .style('width', d => `${Math.round(scaleX(d.percent * 100))}px`)
+  //   .style('height', '10px')
+  //
+  // barGroup.append('p')
+  //   .attr('class', 'bar-label')
+  //   .text(d => {
+  //     if(d.level === 'highSchool') return 'high school'
+  //     else if (d.level === 'bad') return 'below average NBA career'
+  //     else if (d.level === 'good') return 'mediocre NBA career'
+  //     else if (d.level === 'great') return 'great NBA career'
+  //     else if (d.level === 'allstar') return 'superstar NBA career'
+  //     else if (d.level === 'draft') return `drafted`
+  //     else if (d.level === 'rookie') return `< 2 years in NBA`
+  //     else return d.level})
 
 
 }
@@ -126,6 +166,8 @@ function init() {
 	Promise.all([loadData()])
 			.then((results) => {
 				data = results[0]
+        let jules = data.filter(d => d.name === 'Jules Camara')
+        console.log({jules})
         setupChart()
         setupKey()
 			})

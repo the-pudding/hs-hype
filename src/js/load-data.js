@@ -9,10 +9,10 @@ function cleanData(arr){
       draft_pk: +d.draft_pk,
       recruit_year: +d.recruit_year,
       top: +d.top,
-      highSchool: +d.highSchool,
-      coll: +d.coll,
-      draft: +d.draft,
-      rookie: +d.rookie,
+      highSchool: d.highSchool === "" ? "" : +d.highSchool,
+      coll: d.coll === "" ? "" : +d.coll,
+      draft: d.draft === "" ? "" : +d.draft,
+      rookie: d.rookie === "" ? "" : +d.rookie,
       success: +d.success,
       underRank: +d.top === 0 ? Math.random() : ""
     }

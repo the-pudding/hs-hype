@@ -42,7 +42,7 @@ d3.selection.prototype.smallMultiple = function init(options) {
 
         meta.append('p')
           .attr('class', 'studentCount')
-          .text(d => `${d.value[0].count} students`)
+          .text(d => `${d.value[0].count} student athletes`)
 
 
         const chart = $sel.append('div')
@@ -51,7 +51,7 @@ d3.selection.prototype.smallMultiple = function init(options) {
         const barGroup = chart.selectAll('.g-bar')
           .data(d => {
             const val = d.value
-            // val.shift()
+            val.shift()
             return val})
           .enter()
           .append('div')
@@ -74,7 +74,7 @@ d3.selection.prototype.smallMultiple = function init(options) {
 				// defaults to grabbing dimensions from container element
         scaleX
           .range([1, 100])
-          .domain([0, 42])
+          .domain([0, 39])
 
 
         d3.selectAll('.bar')
