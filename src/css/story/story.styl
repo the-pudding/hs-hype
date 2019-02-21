@@ -110,46 +110,68 @@
   flex-wrap wrap
   margin 0 auto
   max-width $column-width
-  .multiple
-    width 175px
-    margin 1rem 1rem
-    .meta
-      font-family $national
-      .studentCount
-        set-type-size('small')
-        text-align: center
-        margin 0
-        color $brown
-      .schoolName
-        text-align center
-        height 42px
-        margin 0
-        line-height 1.2
-        color $brown
-    .g-bar
-      display flex
-      flex-direction row
-      align-items center
-      height 10px
-      margin-bottom 5px
-      justify-content: center;
-      &-bad
-        margin-top 5px
-        padding-top 5px
-        border-top 1px dashed $brown
-        height 15px
-      .bar
-        background-color $orange
-      // &-college, &-draft, &-rookie, &-highSchool
-      //   .bar
-      //     background-color $orange
-      // &-bad, &-good, &-great, &-allstar
-      //   .bar
-      //     background-color $blue
+.multiple, .multKey
+  .meta
+    font-family $national
+    margin-bottom 0.5rem
+    .studentCount
+      set-type-size('small')
+      text-align: center
+      margin 0
+      color $brown
+      line-height 1
+    .schoolName
+      text-align center
+      height 42px
+      margin 0
+      line-height 1.2
+      color $brown
+      font-size 15px
+      font-weight 700
+  .g-bar
+    display flex
+    flex-direction row
+    align-items center
+    height 16px
+    padding 3px 0
+    justify-content: center;
+    &-bad, &-good, &-great, &-allstar
+      background-color: darken($bg, 4)
+    &-bad
+      //margin-top 5px
+      // padding-top 6px
+      border-top 1px dashed $brown
+      // height 19px
 
-      .bar-label
-        font-family $national
-        set-type-size('small')
-        margin-left 5px
-        color lighten($brown, 20)
-        width 34px
+    .bar
+      background-color $orange
+    // &-college, &-draft, &-rookie, &-highSchool
+    //   .bar
+    //     background-color $orange
+    // &-bad, &-good, &-great, &-allstar
+    //   .bar
+    //     background-color $blue
+
+.multiple
+  width 140px
+  margin 1rem 0.95rem
+  +mq('bp-4')
+    margin 1rem 2rem
+  .bar-label
+    font-family $national
+    set-type-size('small')
+    margin-left 5px
+    color lighten($brown, 20)
+    width 34px
+.key-container
+  max-width $column-width
+  margin 0 auto
+.multKey
+  width 300px
+  margin 0 auto
+  .bar-label
+    font-family $national
+    set-type-size('small')
+    margin-left 5px
+    color lighten($brown, 20)
+    width 142px

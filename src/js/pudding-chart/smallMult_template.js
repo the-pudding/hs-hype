@@ -73,11 +73,14 @@ d3.selection.prototype.smallMultiple = function init(options) {
 			resize() {
 				// defaults to grabbing dimensions from container element
         scaleX
-          .range([1, 150])
-          .domain([0, 100])
+          .range([1, 100])
+          .domain([0, 1])
+
+        console.log(scaleX(1))
+        console.log(scaleX(0.5))
 
         d3.selectAll('.bar')
-          .style('width', d => `${Math.round(scaleX(d.percent * 100))}px`)
+          .style('width', d => `${Math.round(scaleX(d.percent))}px`)
           .style('height', '10px')
 				return Chart;
 			},
