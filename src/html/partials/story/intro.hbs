@@ -64,38 +64,18 @@
 
 	<figure class='chart'>
     <div class='chart__meta'>
-      <h4 class='chart__meta-title'>{{{doc.uncTitle}}}</h4>
-      <p class='chart__meta-sub'>{{{doc.uncSub}}}</p>
+      <h4 class='chart__meta-title'>{{{doc.big4Title}}}</h4>
+      <p class='chart__meta-sub'>{{{doc.big4Sub}}}</p>
 			<button class='chart__meta-replay' data-filter='unc'>Replay @@include('refresh-cw.svg')</button>
     </div>
 		<div class='chart__flow' data-filter='big4'></div>
 	</figure>
 
-  <!-- <figure class='chart'>
-    <div class='chart__meta'>
-      <h4 class='chart__meta-title'>{{{doc.ukTitle}}}</h4>
-      <p class='chart__meta-sub'>{{{doc.ukSub}}}</p>
-			<button class='chart__meta-replay' data-filter='uk'>Replay @@include('refresh-cw.svg')</button>
-    </div>
-    <div class='chart__flow' data-filter='uk'></div>
-  </figure>
+	{{#each doc.smallMult}}
+		<p class='prose'>{{{value}}}</p>
+	{{/each}}
 
-  <figure class='chart'>
-    <div class='chart__meta'>
-      <h4 class='chart__meta-title'>{{{doc.dukeTitle}}}</h4>
-      <p class='chart__meta-sub'>{{{doc.dukeSub}}}</p>
-			<button class='chart__meta-replay' data-filter='duke'>Replay @@include('refresh-cw.svg')</button>
-    </div>
-    <div class='chart__flow' data-filter='duke'></div>
-  </figure>
-
-  <figure class='chart'>
-    <div class='chart__meta'>
-      <h4 class='chart__meta-title'>{{{doc.kansasTitle}}}</h4>
-      <p class='chart__meta-sub'>{{{doc.kansasSub}}}</p>
-			<button class='chart__meta-replay' data-filter='kansas'>Replay @@include('refresh-cw.svg')</button>
-    </div>
-    <div class='chart__flow' data-filter='kansas'></div>
-  </figure> -->
+	<div class='smallMultiples'>
+	</div>
 
 </div>

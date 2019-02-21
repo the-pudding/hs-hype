@@ -2,6 +2,7 @@
 import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
 import graphic from './graphic';
+import smallMult from './smallMult'
 
 const $body = d3.select('body');
 let previousWidth = 0;
@@ -38,6 +39,7 @@ function init() {
 	setupStickyHeader();
 	// kick off graphic code
 	graphic.init();
+	smallMult.init()
 }
 
 init();
