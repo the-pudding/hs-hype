@@ -419,10 +419,10 @@ d3.selection.prototype.createFlow = function init(options) {
           .attr('alignment-baseline', 'baseline')
           .attr('text-anchor', 'middle')
 
-        rankAnn
-          .append('line')
-          .attr('x1', 0)
-          .attr('x2', 0)
+        // rankAnn
+        //   .append('line')
+        //   .attr('x1', 0)
+        //   .attr('x2', 0)
 
         if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
           underdogAnn = $annotations
@@ -433,14 +433,14 @@ d3.selection.prototype.createFlow = function init(options) {
           underdogAnn
             .append('text')
             .text('not in Top 100')
-            .attr('alignment-baseline', 'middle')
+            .attr('alignment-baseline', 'hanging')
             .attr('text-anchor', 'middle')
-
-          underdogAnn
-            .append('line')
-            .attr('y1', 0)
-            .attr('y2', 0)
-            .attr('x1', 0)
+					//
+          // underdogAnn
+          //   .append('line')
+          //   .attr('y1', 0)
+          //   .attr('y2', 0)
+          //   .attr('x1', 0)
         }
 
 
@@ -542,18 +542,18 @@ d3.selection.prototype.createFlow = function init(options) {
 
         rankAnn.attr('transform', d =>`translate(${scaleX(d.rank) / DPR}, ${marginTop + ((height / DPR) * breakPoints.highSchool)})`)
 
-        rankAnn.selectAll('line')
-          .attr('y1', d => ((height * breakPoints.highSchool) - (rectHeight / 2) + (radius / 2)) / DPR)
-          .attr('y2', d => -radius)
+        // rankAnn.selectAll('line')
+        //   .attr('y1', d => ((height * breakPoints.highSchool) - (rectHeight / 2) + (radius / 2)) / DPR)
+        //   .attr('y2', d => -radius)
 
         rankAnn.selectAll('text').attr('transform', `translate(0, ${ - (rectHeight / 2 / DPR)})`)
 
         if (filter != "ranked" && filter != "top10" && filter != "skipCollege"){
-          underdogAnn.attr('transform', d =>`translate(${(width - stopSectionWidth)}, ${marginTop + (height / DPR * breakPoints.highSchool)})`)
+          underdogAnn.attr('transform', d =>`translate(0, ${marginTop + ((height / DPR) * breakPoints.highSchool)})`)
 
           underdogAnn.selectAll('text').attr('transform', d =>`translate(${scaleXUnderdogs(0.5) / DPR}, ${ - (rectHeight / 2)})`)
 
-          underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
+          // underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
 
           $labels.selectAll('.percentage__underdog')
             .attr('transform', (d, i) => `translate(${(width - stopSectionWidth) / DPR}, ${(height * breakPoints[d] / DPR) - (rectHeight / 2 / DPR)})`)
