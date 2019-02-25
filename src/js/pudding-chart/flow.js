@@ -579,6 +579,7 @@ d3.selection.prototype.createFlow = function init(options) {
             }
 
           })
+				moveCircles(0)
 
 				return Chart;
 			},
