@@ -14,18 +14,25 @@ d3.selection.prototype.createFlow = function init(options) {
 		const $sel = d3.select(el);
     const filter = $sel.datum().filter
 		let masterData = $sel.datum().filteredData;
-    let data = masterData.map(d => ({...d}))
+    let data = masterData.map(d => ({
+			...d,
+			annotate: !!annotations.find(a => a.name === d.name && a.filter === filter)
+		}))
+		data.sort((a, b) => d3.ascending(a.annotate, b.annotate))
+		console.log({data})
 		let timer = null
 		let elapsedTime = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
+		// const fonts = document.fonts.check('1em National2NarrowWeb-Regular')
+		// console.log({fonts})
 
-		const annMap = annotations.map(d => {
-			const name = d.name;
-			const filter = d.filter;
-			return {[name]: filter}
-		})
+		// const annMap = annotations.map(d => {
+		// 	const name = d.name;
+		// 	const filter = d.filter;
+		// 	return {[name]: filter}
+		// })
 
-		console.log({annMap})
+
 
 		// dimension stuff
 		let width = 0;
@@ -228,12 +235,31 @@ d3.selection.prototype.createFlow = function init(options) {
           }
         $context.beginPath()
         let xPos = null
-        if (d.top == 0){
+        if (d.top === 0){
           xPos = scaleXUnderdogs(d.underRank)
         } else xPos = scaleX(d.rank)
         $context.moveTo(xPos, d.y)
         $context.arc(xPos, d.y, radius * DPR, 0, 2 * Math.PI)
         $context.fill()
+				if (d.y === 64) {
+					$context.fillStyle = 'rgba(149, 117, 81, 0)'
+					$context.strokeStyle = 'rgba(149, 117, 81, 0)'
+				} else if (d.y > 64 && d.y < d.maxY) {
+					$context.fillStyle = 'rgba(149, 117, 81, 0.25)'
+					$context.strokeStyle = 'rgba(149, 117, 81, 0.25)'
+				} else if (d.y === d.maxY){
+					$context.fillStyle = 'rgba(149, 117, 81, 1)'
+					$context.strokeStyle = 'rgba(149, 117, 81, 1)'
+				}
+				$context.font = `${14 * DPR}px "National 2 Narrow Web"`
+				$context.textBaseline = "hanging"
+				$context.textAlign = "center"
+				if (d.annotate) {
+					$context.fillText(d.name, xPos, d.y + (padding * DPR))
+					$context.beginPath()
+					$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI)
+					$context.stroke()
+				}
       })
     }
 
@@ -469,9 +495,6 @@ d3.selection.prototype.createFlow = function init(options) {
           scaleXUnderdogs
             .range([(width - stopSectionWidth), (width - (marginRight * DPR))])
             .domain([0, 1])
-
-						console.log(scaleX.range())
-						console.log(scaleXUnderdogs.range())
         }
 
 				$bg.selectAll('.bg-block')
@@ -548,6 +571,7 @@ d3.selection.prototype.createFlow = function init(options) {
           data.forEach(d => {
             //const yPos = height * breakPoints[d.highest] + marginTop
             d.y = height * breakPoints[d.highest] + (marginTop * DPR),
+						d.maxY = d.y,
 
             d.trans = {
               i: d3.interpolate((marginTop * DPR), d.y),
@@ -565,6 +589,9 @@ d3.selection.prototype.createFlow = function init(options) {
 			render() {
 				if (timer) timer.stop()
 				timer = d3.timer(moveCircles)
+
+				const fonts = document.fonts.check('1em "National 2 Narrow Web"')
+				console.log({fonts})
 
 				//timer.restart()
 
