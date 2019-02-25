@@ -16,10 +16,10 @@ d3.selection.prototype.createFlow = function init(options) {
 		let masterData = $sel.datum().filteredData;
     let data = masterData.map(d => ({
 			...d,
-			annotate: !!annotations.find(a => a.name === d.name && a.filter === filter)
+			annotate: !!annotations.find(a => a.link === d.link && a.filter === filter)
 		}))
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate))
-		console.log({data})
+		console.log({annotations})
 		let timer = null
 		let elapsedTime = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
@@ -41,8 +41,8 @@ d3.selection.prototype.createFlow = function init(options) {
     let rectHeight = 0
 		const marginTop = 32;
 		const marginBottom = 0;
-		const marginLeft = 50;
-		const marginRight = 10;
+		const marginLeft = 40;
+		const marginRight = 15;
     const padding = 8
 
     const topCount = data.filter(d => d.top === 1).length
@@ -241,7 +241,7 @@ d3.selection.prototype.createFlow = function init(options) {
         $context.moveTo(xPos, d.y)
         $context.arc(xPos, d.y, radius * DPR, 0, 2 * Math.PI)
         $context.fill()
-				if (d.y === 64) {
+				if (d.y === marginTop * DPR) {
 					$context.fillStyle = 'rgba(149, 117, 81, 0)'
 					$context.strokeStyle = 'rgba(149, 117, 81, 0)'
 				} else if (d.y > 64 && d.y < d.maxY) {
@@ -454,26 +454,26 @@ d3.selection.prototype.createFlow = function init(options) {
 			// on resize, update new dimensions
 			resize() {
 				// defaults to grabbing dimensions from container element
-				let normalWidth = $sel.node().offsetWidth - marginLeft - marginRight
+				let normalWidth = $sel.node().offsetWidth// - marginLeft - marginRight
 				width = normalWidth * DPR;
-				let normalHeight = $sel.node().offsetHeight - marginTop - marginBottom
+				let normalHeight = $sel.node().offsetHeight// - marginTop - marginBottom
 				height = normalHeight * DPR
 
 				$svg
-					.attr('width', (width + marginLeft + marginRight) / DPR)
-					.attr('height', (height + marginTop + marginBottom) / DPR);
+					.attr('width', width / DPR)
+					.attr('height', height / DPR);
 
         $canvas
-          .attr('width', width + (marginLeft) + (marginRight))
-          .attr('height', height + (marginTop) + (marginBottom))
-					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
-					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
+          .attr('width', width)
+          .attr('height', height)
+					.style('width', `${width / DPR}px`)
+					.style('height', `${height / DPR}px`)
 
         stopSectionWidth = width * 0.25
 
         if (filter === "ranked" || filter === "skipCollege"){
           scaleX
-            .range([marginLeft * DPR, (width - (marginRight * DPR))])
+            .range([(marginLeft * DPR), width - (marginRight * DPR)])
             .domain([1, 100])
 
           scaleXUnderdogs
@@ -481,7 +481,7 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else if (filter === "top10"){
           scaleX
-            .range([(marginLeft * DPR), (width - (marginRight * DPR))])
+            .range([(marginLeft * DPR), width - (marginRight * DPR)])
             .domain([1, 10])
 
           scaleXUnderdogs
@@ -489,11 +489,11 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([0, 0])
         } else {
           scaleX
-            .range([(marginLeft * DPR), (width - stopSectionWidth - padding)])
+            .range([(marginLeft * DPR), (width - stopSectionWidth - padding) - (marginRight * DPR)])
             .domain([1, 100])
 
           scaleXUnderdogs
-            .range([(width - stopSectionWidth), (width - (marginRight * DPR))])
+            .range([(width - stopSectionWidth), width - (marginRight * DPR)])
             .domain([0, 1])
         }
 
@@ -525,8 +525,8 @@ d3.selection.prototype.createFlow = function init(options) {
         $labels.selectAll('.percentage__top')
           .attr('transform', (d, i) => {
             let xPos = null
-            if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width / DPR
-            else xPos = (width - stopSectionWidth - padding) / DPR
+            if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = (width / DPR) - marginRight
+            else xPos = ((width - stopSectionWidth - padding) / DPR) - marginRight
 
             return `translate(${xPos}, ${(height / DPR * breakPoints[d]) - (rectHeight / 2 / DPR)})`
           })
@@ -534,8 +534,8 @@ d3.selection.prototype.createFlow = function init(options) {
 				$labels.selectAll('.count__top')
 					.attr('transform', (d, i) => {
 						let xPos = null
-						if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = width / DPR
-						else xPos = (width - stopSectionWidth - padding) / DPR
+						if (filter == "ranked" || filter == "top10" || filter == "skipCollege") xPos = (width / DPR) - marginRight
+						else xPos = ((width - stopSectionWidth - padding) / DPR) - marginRight
 
 						return `translate(${xPos}, ${(height / DPR * breakPoints[d]) + (rectHeight / 2 / DPR)})`
 					})
