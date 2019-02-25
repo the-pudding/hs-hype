@@ -7,6 +7,8 @@
  4b. const chart = d3.select('.thing').datum(datum).puddingChartLine();
 */
 
+import annotations from '.././annotations'
+
 d3.selection.prototype.createFlow = function init(options) {
 	function createChart(el) {
 		const $sel = d3.select(el);
@@ -17,15 +19,23 @@ d3.selection.prototype.createFlow = function init(options) {
 		let elapsedTime = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
 
+		const annMap = annotations.map(d => {
+			const name = d.name;
+			const filter = d.filter;
+			return {[name]: filter}
+		})
+
+		console.log({annMap})
+
 		// dimension stuff
 		let width = 0;
 		let height = 0;
     let radius = 3
     let rectHeight = 0
 		const marginTop = 32;
-		const marginBottom = 100;
+		const marginBottom = 0;
 		const marginLeft = 50;
-		const marginRight = 20;
+		const marginRight = 10;
     const padding = 8
 
     const topCount = data.filter(d => d.top === 1).length
@@ -33,14 +43,14 @@ d3.selection.prototype.createFlow = function init(options) {
 		let test = 0
 
     const breakPoints = {
-      highSchool: 0/7,
-      college: 1/7,
-      draft: 2/7,
-      rookie: 3/7,
-      bad: 4/7,
-      good: 5/7,
-      great: 6/7,
-      allstar: 7/7,
+      highSchool: 0/8,
+      college: 1/8,
+      draft: 2/8,
+      rookie: 3/8,
+      bad: 4/8,
+      good: 5/8,
+      great: 6/8,
+      allstar: 7/8,
     }
     const bpKeys = Object.keys(breakPoints)
 
@@ -219,7 +229,7 @@ d3.selection.prototype.createFlow = function init(options) {
         $context.beginPath()
         let xPos = null
         if (d.top == 0){
-          xPos = (width - stopSectionWidth) + scaleXUnderdogs(d.underRank)
+          xPos = scaleXUnderdogs(d.underRank)
         } else xPos = scaleX(d.rank)
         $context.moveTo(xPos, d.y)
         $context.arc(xPos, d.y, radius * DPR, 0, 2 * Math.PI)
@@ -420,15 +430,15 @@ d3.selection.prototype.createFlow = function init(options) {
 				// defaults to grabbing dimensions from container element
 				let normalWidth = $sel.node().offsetWidth - marginLeft - marginRight
 				width = normalWidth * DPR;
-				let normalHeight = $sel.node().offsetHeight ;
-				height = $sel.node().offsetHeight * DPR - marginTop - marginBottom
+				let normalHeight = $sel.node().offsetHeight - marginTop - marginBottom
+				height = normalHeight * DPR
 
 				$svg
 					.attr('width', (width + marginLeft + marginRight) / DPR)
 					.attr('height', (height + marginTop + marginBottom) / DPR);
 
         $canvas
-          .attr('width', width + (marginLeft * DPR) + (marginRight * DPR))
+          .attr('width', width + (marginLeft) + (marginRight))
           .attr('height', height + (marginTop) + (marginBottom))
 					.style('width', `${(width + marginLeft + marginRight) / DPR}px`)
 					.style('height', `${(height + marginTop + marginBottom) / DPR}px`)
@@ -437,7 +447,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
         if (filter === "ranked" || filter === "skipCollege"){
           scaleX
-            .range([marginLeft, (width - marginRight)])
+            .range([marginLeft * DPR, (width - (marginRight * DPR))])
             .domain([1, 100])
 
           scaleXUnderdogs
@@ -457,8 +467,11 @@ d3.selection.prototype.createFlow = function init(options) {
             .domain([1, 100])
 
           scaleXUnderdogs
-            .range([(stopSectionWidth + (marginLeft * DPR)), 0])
+            .range([(width - stopSectionWidth), (width - (marginRight * DPR))])
             .domain([0, 1])
+
+						console.log(scaleX.range())
+						console.log(scaleXUnderdogs.range())
         }
 
 				$bg.selectAll('.bg-block')
@@ -467,10 +480,10 @@ d3.selection.prototype.createFlow = function init(options) {
 					.attr('x', 0)
 					.attr('y', height / DPR * breakPoints.bad)
 					.lower()
-					.attr('transform', `translate(${marginLeft, 0})`)
+					.attr('transform', `translate(${marginLeft * DPR, 0})`)
 
 				$bg.selectAll('text')
-					.attr('transform', `translate(${(marginLeft) / 2}, ${(height / DPR) * 6/7 })rotate(-90)`)
+					.attr('transform', `translate(${(marginLeft) / 2}, ${(height / DPR) * 6/8 })rotate(-90)`)
 					.attr('text-anchor', 'middle')
 
 
