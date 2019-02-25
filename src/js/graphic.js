@@ -30,13 +30,14 @@ function setupCharts(){
 		.datum(indicators)
 		.createFlow()
 
-	setTimeout(setupFigureEnter, 100)
+
 }
 
 function setupFigureEnter(){
 	EnterView({
 		selector: '.chart__flow',
 		enter: function(el, i){
+			console.log({el})
 			// pause other charts
 			Object.keys(charts).map(d => {
 				const val = charts[d]
@@ -67,6 +68,7 @@ function init() {
 				data = results[0]
 				$charts.each(setupCharts)
 				$buttons.on('click', handleButtonClick)
+				setTimeout(setupFigureEnter, 100)
 			})
 			.catch(err => console.log(err))
 }

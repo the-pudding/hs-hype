@@ -19,9 +19,7 @@ d3.selection.prototype.createFlow = function init(options) {
 			annotate: !!annotations.find(a => a.link === d.link && a.filter === filter)
 		}))
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate))
-		console.log({annotations})
 		let timer = null
-		let elapsedTime = null
 		const DPR = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1
 		// const fonts = document.fonts.check('1em National2NarrowWeb-Regular')
 		// console.log({fonts})
@@ -181,7 +179,7 @@ d3.selection.prototype.createFlow = function init(options) {
 
     function updateAllPercent(d){
       const top = d.top
-      if (d.coll <= 2 & d.y >= height * breakPoints.college) updatePercent(d, 'college', top)
+      if (d.coll <= 2 & d.y >= (height * breakPoints.college) + (marginTop * DPR)) updatePercent(d, 'college', top)
       if (d.draft <= 2 & d.y >= height * breakPoints.draft) updatePercent(d, 'draft', top)
       if (d.rookie <= 2 & d.y >= height * breakPoints.rookie) updatePercent(d, 'rookie', top)
       if (d.bad <= 2 & d.y >= height * breakPoints.bad) updatePercent(d, 'bad', top)
@@ -264,7 +262,6 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     function moveCircles(t){
-			elapsedTime = t
       data.forEach(d => {
         const del = d.trans.delay
         let time = d3.easeBounceOut(timeScale(t - d.trans.delay))
@@ -570,11 +567,11 @@ d3.selection.prototype.createFlow = function init(options) {
           // setup data for canvas
           data.forEach(d => {
             //const yPos = height * breakPoints[d.highest] + marginTop
-            d.y = height * breakPoints[d.highest] + (marginTop * DPR),
+            d.y = (height) * breakPoints[d.highest] + (marginTop * DPR),
 						d.maxY = d.y,
 
             d.trans = {
-              i: d3.interpolate((marginTop * DPR), d.y),
+              i: d3.interpolate(marginTop * DPR, d.y),
               delay: delay(d)
             }
             if (d.trans.delay > maxDelay) {
@@ -587,11 +584,9 @@ d3.selection.prototype.createFlow = function init(options) {
 			},
 			// update scales and render chart
 			render() {
+
 				if (timer) timer.stop()
 				timer = d3.timer(moveCircles)
-
-				const fonts = document.fonts.check('1em "National 2 Narrow Web"')
-				console.log({fonts})
 
 				//timer.restart()
 
