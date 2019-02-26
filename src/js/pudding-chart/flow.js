@@ -39,8 +39,8 @@ d3.selection.prototype.createFlow = function init(options) {
     let rectHeight = 0
 		const marginTop = 32;
 		const marginBottom = 0;
-		const marginLeft = 40;
-		const marginRight = 15;
+		const marginLeft = 42;
+		const marginRight = 24;
     const padding = 8
 
     const topCount = data.filter(d => d.top === 1).length
