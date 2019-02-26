@@ -11,80 +11,18 @@
 		<time class='intro__time'>{{doc.date}}</time>
 	</div>
 
-	{{#each doc.intro}}
-		<p class='prose'>{{{value}}}</p>
-	{{/each}}
-
-	<figure class='chart'>
-		<div class='chart__meta'>
-			<h4 class='chart__meta-title'>{{{doc.rankTitle}}}</h4>
-			<p class='chart__meta-sub'>{{{doc.rankSub}}}</p>
-			<button class='chart__meta-replay' data-filter='ranked'>Replay @@include('refresh-cw.svg')</button>
-		</div>
-		<div class='chart__flow' data-filter='ranked'></div>
-	</figure>
-
-	<p class='prose'>{{{doc.top10}}}</p>
-
-	<figure class='chart'>
-		<div class='chart__meta'>
-			<h4 class='chart__meta-title'>{{{doc.top10Title}}}</h4>
-			<p class='chart__meta-sub'>{{{doc.top10Sub}}}</p>
-			<button class='chart__meta-replay' data-filter='top10'>Replay @@include('refresh-cw.svg')</button>
-		</div>
-		<div class='chart__flow' data-filter='top10'></div>
-	</figure>
-
-	<p class='prose'>{{{doc.postTop10}}}</p>
-
-	<figure class='chart'>
-		<div class='chart__meta'>
-			<h4 class='chart__meta-title'>{{{doc.skipTitle}}}</h4>
-			<p class='chart__meta-sub'>{{{doc.skipSub}}}</p>
-			<button class='chart__meta-replay' data-filter='skipCollege'>Replay @@include('refresh-cw.svg')</button>
-		</div>
-		<div class='chart__flow' data-filter='skipCollege'></div>
-	</figure>
-
-	{{#each doc.postSkip}}
-		<p class='prose'>{{{value}}}</p>
-	{{/each}}
-
-	<figure class='chart'>
-		<div class='chart__meta'>
-			<h4 class='chart__meta-title'>{{{doc.allTitle}}}</h4>
-			<p class='chart__meta-sub'>{{{doc.allSub}}}</p>
-			<button class='chart__meta-replay' data-filter='none'>Replay @@include('refresh-cw.svg')</button>
-		</div>
-		<div class='chart__flow' data-filter='none'></div>
-	</figure>
-
-	<p class='prose'>{{{doc.postAll}}}</p>
-	<p class='prose'>{{{doc.college}}}</p>
-
-	<figure class='chart'>
-    <div class='chart__meta'>
-      <h4 class='chart__meta-title'>{{{doc.big4Title}}}</h4>
-      <p class='chart__meta-sub'>{{{doc.big4Sub}}}</p>
-			<button class='chart__meta-replay' data-filter='unc'>Replay @@include('refresh-cw.svg')</button>
-    </div>
-		<div class='chart__flow' data-filter='big4'></div>
-	</figure>
-
-	{{#each doc.smallMult}}
-		<p class='prose'>{{{value}}}</p>
-	{{/each}}
-
-	<div class='key-container'>
-		<div class='multKey'>
-		</div>
+	<div class='prose'>
+		{{#each doc.intro}}
+		<p>{{{value}}}</p>
+		{{/each}}
 	</div>
 
-	{{#each doc.postKey}}
-		<p class='prose'>{{{value}}}</p>
-	{{/each}}
-
-	<div class='smallMultiples'>
+	<div class='intro__media intro__media--left'>
+		<video src='assets/video/zion-web.mp4' muted autoplay loop></video>
 	</div>
 
+	<div class='intro__media intro__media--right'>
+		<video src='assets/video/lamelo-web.mp4' muted autoplay loop></video>
+	</div>
+	
 </div>

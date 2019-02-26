@@ -1,6 +1,8 @@
 .intro
 	margin 0 auto
-	padding 6rem 1rem 3rem 1rem
+	padding 6rem 1rem 0rem 1rem
+	position relative
+	max-width 80rem
 
 	&__hed
 		max-width 60rem
@@ -40,3 +42,20 @@
 		margin-top 1rem
 		text-align center
 		set-type-size('root')
+
+	&__media
+		position absolute
+		width 18rem
+
+		&--left
+			left 1rem
+			top 35.5rem
+		
+		&--right
+			right 1rem
+			top 50rem
+	
+	video
+		display block
+		box-shadow 0 0 3px $brown
+		border-radius 6px
