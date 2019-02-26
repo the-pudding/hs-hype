@@ -48,8 +48,8 @@
 		display none
 		opacity 0.25
 		cursor pointer
-		transition 100ms opacity ease-in-out 
-		&:hover
+		transition 100ms opacity ease-in-out
+		&:hover,&.is-selected
 			opacity 1
 		+mq('bp-7')
 			display block
@@ -72,3 +72,6 @@
 			background-color lighten($orange, 30)
 			padding 0 0.25em
 			cursor pointer
+			&:hover,&.is-selected
+				background-color $orange
+				color $bg
