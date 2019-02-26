@@ -233,8 +233,6 @@ d3.selection.prototype.createFlow = function init() {
 				const time = d3.easeBounceOut(delta);
 				d.y = d.trans.i(time);
 				updateAllPercent(d);
-				// updatePercent(d)
-				const yPos = d.y;
 			});
 			drawCircles();
 			if (t >= duration + maxDelay) {

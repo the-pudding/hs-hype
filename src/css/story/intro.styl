@@ -69,9 +69,10 @@
 
 	.prose
 		span
-			background-color lighten($orange, 30)
-			padding 0 0.25em
-			cursor pointer
-			&:hover,&.is-selected
-				background-color $orange
-				color $bg
+			+mq('bp-7')
+				background-color lighten($orange, 30)
+				padding 0 0.25em
+				cursor pointer
+				&:hover,&.is-selected
+					background-color $orange
+					color $bg
