@@ -61,29 +61,6 @@ d3.selection.prototype.createFlow = function init(options) {
 
     let stopSectionWidth = null
 
-    function bounce(h) {
-      if (!arguments.length) h = 0.25;
-      var b0 = 1 - h,
-          b1 = b0 * (1 - b0) + b0,
-          b2 = b0 * (1 - b1) + b1,
-          x0 = 2 * Math.sqrt(h),
-          x1 = x0 * Math.sqrt(h),
-          x2 = x1 * Math.sqrt(h),
-          t0 = 1 / (1 + x0 + x1 + x2),
-          t1 = t0 + t0 * x0,
-          t2 = t1 + t0 * x1,
-          m0 = t0 + t0 * x0 / 2,
-          m1 = t1 + t0 * x1 / 2,
-          m2 = t2 + t0 * x2 / 2,
-          a = 1 / (t0 * t0);
-      return function(t) {
-        return t >= 1 ? 1
-            : t < t0 ? a * t * t
-            : t < t1 ? a * (t -= m0) * t + b0
-            : t < t2 ? a * (t -= m1) * t + b1
-            : a * (t -= m2) * t + b2;
-      };
-    }
 
     const annotationData = [{
       rank: 1,
@@ -130,9 +107,7 @@ d3.selection.prototype.createFlow = function init(options) {
     // animation constants
     //let ease = d3.easeBounceOut()
     let duration = 5000
-    let delay = function(d){
-      return Math.random() * delayScale(data.length)
-    }
+   
     let maxDelay = delayScale(data.length)
     let timeScale = d3.scaleLinear()
       .domain([0, duration])
@@ -223,6 +198,10 @@ d3.selection.prototype.createFlow = function init(options) {
         // }
     }
 
+		function getDelay (d) {
+			return Math.random() * delayScale(data.length)
+		}
+
     function drawCircles(point){
       $context.clearRect(0, 0, width + (marginLeft * DPR) + (marginRight * DPR), height + marginTop + marginBottom)
       data.forEach(function(d){
@@ -262,9 +241,10 @@ d3.selection.prototype.createFlow = function init(options) {
     }
 
     function moveCircles(t){
+			const duration = 1000
       data.forEach(d => {
-        const del = d.trans.delay
-        let time = d3.easeBounceOut(timeScale(t - d.trans.delay))
+				const delta = Math.max(0, t - d.trans.delay)
+        let time = d3.easeBounceOut(timeScale(delta))
         d.y = d.trans.i(time)
         updateAllPercent(d)
         //updatePercent(d)
@@ -282,6 +262,11 @@ d3.selection.prototype.createFlow = function init(options) {
 		const Chart = {
 			// called once at start
 			init() {
+				console.log(data[0])
+				data.forEach(d => {
+					d.trans = {delay: getDelay(d)}
+				})
+
         $canvas = $sel.append('canvas').attr('class', 'pudding-chart-canvas')
         $context = $canvas.node().getContext('2d')
 
@@ -570,10 +555,8 @@ d3.selection.prototype.createFlow = function init(options) {
             d.y = (height) * breakPoints[d.highest] + (marginTop * DPR),
 						d.maxY = d.y,
 
-            d.trans = {
-              i: d3.interpolate(marginTop * DPR, d.y),
-              delay: delay(d)
-            }
+            d.trans.i = d3.interpolate(marginTop * DPR, d.y)
+              
             if (d.trans.delay > maxDelay) {
               maxDelay = d.trans.delay
             }

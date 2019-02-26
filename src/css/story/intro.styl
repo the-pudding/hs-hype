@@ -17,8 +17,7 @@
 		margin 0 auto
 		margin-top 1rem
 		text-align center
-		font-family $national
-		set-type-size('large')
+		set-type-size('large', true)
 
 	&__line
 		display flex
@@ -45,17 +44,31 @@
 
 	&__media
 		position absolute
-		width 18rem
+		width 17rem
+		display none
+		opacity 0.25
+		cursor pointer
+		transition 100ms opacity ease-in-out 
+		&:hover
+			opacity 1
+		+mq('bp-7')
+			display block
 
 		&--left
 			left 1rem
-			top 35.5rem
+			top 38rem
 		
 		&--right
 			right 1rem
-			top 50rem
+			top 51.5rem
 	
 	video
 		display block
 		box-shadow 0 0 3px $brown
 		border-radius 6px
+
+	.prose
+		span
+			background-color lighten($orange, 30)
+			padding 0 0.25em
+			cursor pointer

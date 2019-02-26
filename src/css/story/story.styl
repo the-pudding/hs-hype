@@ -1,2 +1,8 @@
-.prose p
-	set-type-size(medium)
+main
+	padding 0 1rem
+.prose
+	padding 0
+	p
+		set-type-size(root)
+		+mq('bp-4')
+			set-type-size(medium)
