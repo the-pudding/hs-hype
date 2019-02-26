@@ -426,7 +426,7 @@ d3.selection.prototype.createFlow = function init() {
 					underdogAnn
 						.append('text')
 						.text('not in Top 100')
-						.attr('alignment-baseline', 'hanging')
+						// .attr('alignment-baseline', 'hanging')
 						.attr('text-anchor', 'middle');
 					//
 					// underdogAnn
