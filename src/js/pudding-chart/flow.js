@@ -20,6 +20,7 @@ d3.selection.prototype.createFlow = function init() {
 				a => a.link === d.link && a.filter === filter
 			)
 		}));
+
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
 
 		let circleData = null;
