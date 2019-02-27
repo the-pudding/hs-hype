@@ -21,8 +21,9 @@ d3.selection.prototype.createFlow = function init() {
 			)
 		}));
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
+
 		let circleData = null;
-		let elapsedTime = null
+		let elapsedTime = null;
 		let timer = null;
 		const DPR = window.devicePixelRatio
 			? Math.min(window.devicePixelRatio, 2)
@@ -108,11 +109,11 @@ d3.selection.prototype.createFlow = function init() {
 			.clamp(true);
 
 		// helper functions
-		let topPass = null
-		let topPassMap = null
+		let topPass = null;
+		let topPassMap = null;
 
-		let underPass = null
-		let underPassMap = null
+		let underPass = null;
+		let underPassMap = null;
 
 		const percentSelectors = {
 			college: {},
@@ -134,16 +135,14 @@ d3.selection.prototype.createFlow = function init() {
 			allstar: {}
 		};
 
-		function resetPercent(){
-			d3.selectAll('.percentage')
-				.text(d => d === 'highSchool' ? '' : '0%')
+		function resetPercent() {
+			d3.selectAll('.percentage').text(d => (d === 'highSchool' ? '' : '0%'));
 
-			d3.selectAll('.count')
-				.text(d => {
-					if (d === 'highSchool') return ''
-					else if (d === 'college') return '0 players'
-					else return '0'
-			})
+			d3.selectAll('.count').text(d => {
+				if (d === 'highSchool') return '';
+				if (d === 'college') return '0 players';
+				return '0';
+			});
 
 			topPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
 			topPassMap = d3.map(topPass, d => d.level);
@@ -245,8 +244,8 @@ d3.selection.prototype.createFlow = function init() {
 			});
 		}
 
-		function setupCircleData(){
-			circleData = data.map(d => ({...d}))
+		function setupCircleData() {
+			circleData = data.map(d => ({ ...d }));
 			circleData.forEach(d => {
 				d.trans = { delay: getDelay(d) };
 			});
@@ -265,7 +264,7 @@ d3.selection.prototype.createFlow = function init() {
 		}
 
 		function moveCircles(t) {
-			elapsedTime = t
+			elapsedTime = t;
 			circleData.forEach(d => {
 				const progress = Math.max(0, t - d.trans.delay);
 				const delta = Math.min(1, progress / d.trans.duration);
@@ -280,12 +279,10 @@ d3.selection.prototype.createFlow = function init() {
 			}
 		}
 
-
-
 		const Chart = {
 			// called once at start
 			init() {
-				setupCircleData()
+				setupCircleData();
 
 				$canvas = $sel.append('canvas').attr('class', 'pudding-chart-canvas');
 				$context = $canvas.node().getContext('2d');
@@ -661,10 +658,9 @@ d3.selection.prototype.createFlow = function init() {
 			// update scales and render chart
 			render() {
 				if (timer) timer.stop();
-				setupCircleData()
-				resetPercent()
+				setupCircleData();
+				resetPercent();
 				timer = d3.timer(moveCircles);
-
 
 				// timer.restart()
 
