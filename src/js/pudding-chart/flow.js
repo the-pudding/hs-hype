@@ -22,6 +22,7 @@ d3.selection.prototype.createFlow = function init() {
 		}));
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
 		let circleData = null;
+		let elapsedTime = null
 		let timer = null;
 		const DPR = window.devicePixelRatio
 			? Math.min(window.devicePixelRatio, 2)
@@ -135,7 +136,14 @@ d3.selection.prototype.createFlow = function init() {
 
 		function resetPercent(){
 			d3.selectAll('.percentage')
-				.text('0%')
+				.text(d => d === 'highSchool' ? '' : '0%')
+
+			d3.selectAll('.count')
+				.text(d => {
+					if (d === 'highSchool') return ''
+					else if (d === 'college') return '0 players'
+					else return '0'
+			})
 
 			topPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
 			topPassMap = d3.map(topPass, d => d.level);
@@ -257,7 +265,7 @@ d3.selection.prototype.createFlow = function init() {
 		}
 
 		function moveCircles(t) {
-			//setupCircleData()
+			elapsedTime = t
 			circleData.forEach(d => {
 				const progress = Math.max(0, t - d.trans.delay);
 				const delta = Math.min(1, progress / d.trans.duration);
