@@ -21,6 +21,7 @@ d3.selection.prototype.createFlow = function init() {
 			)
 		}));
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
+		let circleData = null;
 		let timer = null;
 		const DPR = window.devicePixelRatio
 			? Math.min(window.devicePixelRatio, 2)
@@ -37,8 +38,8 @@ d3.selection.prototype.createFlow = function init() {
 		const marginRight = 24;
 		const padding = 8;
 
-		const topCount = data.filter(d => d.top === 1).length;
-		const underCount = data.filter(d => d.top === 0).length;
+		const topCount = masterData.filter(d => d.top === 1).length;
+		const underCount = masterData.filter(d => d.top === 0).length;
 
 		const breakPoints = {
 			highSchool: 0 / 8,
@@ -106,11 +107,11 @@ d3.selection.prototype.createFlow = function init() {
 			.clamp(true);
 
 		// helper functions
-		const topPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
-		const topPassMap = d3.map(topPass, d => d.level);
+		let topPass = null
+		let topPassMap = null
 
-		const underPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
-		const underPassMap = d3.map(underPass, d => d.level);
+		let underPass = null
+		let underPassMap = null
 
 		const percentSelectors = {
 			college: {},
@@ -131,6 +132,17 @@ d3.selection.prototype.createFlow = function init() {
 			great: {},
 			allstar: {}
 		};
+
+		function resetPercent(){
+			d3.selectAll('.percentage')
+				.text('0%')
+
+			topPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
+			topPassMap = d3.map(topPass, d => d.level);
+
+			underPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
+			underPassMap = d3.map(underPass, d => d.level);
+		}
 
 		function updateAllPercent(d) {
 			const top = d.top;
@@ -189,7 +201,7 @@ d3.selection.prototype.createFlow = function init() {
 				width + marginLeft * DPR + marginRight * DPR,
 				height + marginTop + marginBottom
 			);
-			data.forEach(d => {
+			circleData.forEach(d => {
 				if (d.top === 0) {
 					$context.fillStyle = 'rgba(83, 113, 171, 0.3)';
 				} else {
@@ -225,8 +237,28 @@ d3.selection.prototype.createFlow = function init() {
 			});
 		}
 
+		function setupCircleData(){
+			circleData = data.map(d => ({...d}))
+			circleData.forEach(d => {
+				d.trans = { delay: getDelay(d) };
+			});
+
+			circleData.forEach(d => {
+				// const yPos = height * breakPoints[d.highest] + marginTop
+				d.y = height * breakPoints[d.highest] + marginTop * DPR;
+				d.maxY = d.y;
+				d.trans.duration = (d.maxY / height) * duration;
+				d.trans.i = d3.interpolate(marginTop * DPR, d.y);
+
+				if (d.trans.delay > maxDelay) {
+					maxDelay = d.trans.delay;
+				}
+			});
+		}
+
 		function moveCircles(t) {
-			data.forEach(d => {
+			//setupCircleData()
+			circleData.forEach(d => {
 				const progress = Math.max(0, t - d.trans.delay);
 				const delta = Math.min(1, progress / d.trans.duration);
 
@@ -240,12 +272,12 @@ d3.selection.prototype.createFlow = function init() {
 			}
 		}
 
+
+
 		const Chart = {
 			// called once at start
 			init() {
-				data.forEach(d => {
-					d.trans = { delay: getDelay(d) };
-				});
+				setupCircleData()
 
 				$canvas = $sel.append('canvas').attr('class', 'pudding-chart-canvas');
 				$context = $canvas.node().getContext('2d');
@@ -603,7 +635,7 @@ d3.selection.prototype.createFlow = function init() {
 				}
 
 				// setup data for canvas
-				data.forEach(d => {
+				circleData.forEach(d => {
 					// const yPos = height * breakPoints[d.highest] + marginTop
 					d.y = height * breakPoints[d.highest] + marginTop * DPR;
 					d.maxY = d.y;
@@ -621,7 +653,10 @@ d3.selection.prototype.createFlow = function init() {
 			// update scales and render chart
 			render() {
 				if (timer) timer.stop();
+				setupCircleData()
+				resetPercent()
 				timer = d3.timer(moveCircles);
+
 
 				// timer.restart()
 
