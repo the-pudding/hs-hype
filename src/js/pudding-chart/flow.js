@@ -13,14 +13,16 @@ d3.selection.prototype.createFlow = function init() {
 	function createChart(el) {
 		const $sel = d3.select(el);
 		const { filter } = $sel.datum();
-		const masterData = $sel.datum().filteredData.slice(0, 1);
+		const masterData = $sel.datum().filteredData;
 		let data = masterData.map(d => ({
 			...d,
 			annotate: !!annotations.find(
 				a => a.link === d.link && a.filter === filter
 			)
 		}));
-
+		let $tooltip = d3.select(`.chart__tooltip-${filter}`)
+		let $tooltipTitle = $tooltip.select('.tooltip__title')
+		let $tooltipPlayers = $tooltip.select('.tooltip__players')
 
 
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
@@ -45,6 +47,7 @@ d3.selection.prototype.createFlow = function init() {
 
 		const topCount = masterData.filter(d => d.top === 1).length;
 		const underCount = masterData.filter(d => d.top === 0).length;
+		let heightLevels = null
 
 		const breakPoints = {
 			highSchool: 0 / 8,
@@ -137,6 +140,42 @@ d3.selection.prototype.createFlow = function init() {
 			great: {},
 			allstar: {}
 		};
+
+
+		function generateTooltip(){
+			const mouse = d3.mouse(this)
+			const x = mouse[0]
+			const y = mouse[1]
+			let rank = null
+
+			if (filter === "ranked" || filter === "top10"){
+				rank = Math.round(scaleX.invert(x), 0)
+			}
+
+			const closestLevel = heightLevels.reduce(function(prev, curr) {
+					return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
+			})
+			const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / height)
+			const tooltipData = data.filter(d => d.highest === key && d.rank === rank)
+
+			$tooltipPlayers.selectAll('li').remove()
+
+			const list = $tooltipPlayers.selectAll('li')
+				.data(tooltipData)
+				.enter()
+				.append('li')
+				.text(d => d.name)
+
+			const year = $tooltipTitle.selectAll('span')
+				.text(`#${rank}`)
+
+			const circle = $svg.select('.tooltip__circle')
+				.attr('cx', scaleX(rank))
+				.attr('cy', height * breakPoints[key] + marginTop * DPR)
+			console.log({circle})
+				//.attr('transform', `translate(${scaleX(rank)}, ${height * d[key]})`)
+
+		}
 
 		function resetPercent() {
 			$sel.selectAll('.percentage').text(d => (d === 'highSchool' ? '' : '0%'));
@@ -294,7 +333,14 @@ d3.selection.prototype.createFlow = function init() {
 
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
 
+
+				$svg.on('mousemove', generateTooltip)
+
 				$bg = $svg.append('g').attr('class', 'g-bg');
+
+				$svg.append('circle')
+					.attr('class', 'tooltip__circle')
+					.attr('r', radius + 2)
 
 				const $allLabels = $svg.append('g').attr('class', 'g-labels');
 
@@ -487,6 +533,8 @@ d3.selection.prototype.createFlow = function init() {
 				const normalHeight = $sel.node().offsetHeight; // - marginTop - marginBottom
 				height = normalHeight * DPR;
 
+				heightLevels = bpKeys.map(d => height * breakPoints[d])
+
 				$svg.attr('width', width / DPR).attr('height', height / DPR);
 
 				$canvas
@@ -500,13 +548,15 @@ d3.selection.prototype.createFlow = function init() {
 				if (filter === 'ranked' || filter === 'skipCollege') {
 					scaleX
 						.range([marginLeft * DPR, width - marginRight * DPR])
-						.domain([1, 100]);
+						.domain([1, 100])
+						.clamp(true);
 
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
 				} else if (filter === 'top10') {
 					scaleX
 						.range([marginLeft * DPR, width - marginRight * DPR])
-						.domain([1, 10]);
+						.domain([1, 10])
+						.clamp(true);;
 
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
 				} else {
@@ -515,11 +565,13 @@ d3.selection.prototype.createFlow = function init() {
 							marginLeft * DPR,
 							width - stopSectionWidth - padding - marginRight * DPR
 						])
-						.domain([1, 100]);
+						.domain([1, 100])
+						.clamp(true);;
 
 					scaleXUnderdogs
 						.range([width - stopSectionWidth, width - marginRight * DPR])
-						.domain([0, 1]);
+						.domain([0, 1])
+						.clamp(true);;
 				}
 
 				$bg
