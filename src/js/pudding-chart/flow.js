@@ -13,13 +13,13 @@ d3.selection.prototype.createFlow = function init() {
 	function createChart(el) {
 		const $sel = d3.select(el);
 		const { filter } = $sel.datum();
-		const masterData = $sel.datum().filteredData;
+		const masterData = $sel.datum().filteredData.slice(0, 1);
 		let data = masterData.map(d => ({
 			...d,
 			annotate: !!annotations.find(
 				a => a.link === d.link && a.filter === filter
 			)
-		}));
+		}))
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
 
 		let circleData = null;
@@ -109,11 +109,11 @@ d3.selection.prototype.createFlow = function init() {
 			.clamp(true);
 
 		// helper functions
-		let topPass = null;
-		let topPassMap = null;
+		let topPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
+		let topPassMap = d3.map(topPass, d => d.level);
 
-		let underPass = null;
-		let underPassMap = null;
+		let underPass = bpKeys.map((d, i) => ({ level: d, passed: [] }));
+		let underPassMap = d3.map(underPass, d => d.level);
 
 		const percentSelectors = {
 			college: {},
@@ -136,9 +136,9 @@ d3.selection.prototype.createFlow = function init() {
 		};
 
 		function resetPercent() {
-			d3.selectAll('.percentage').text(d => (d === 'highSchool' ? '' : '0%'));
+			$sel.selectAll('.percentage').text(d => (d === 'highSchool' ? '' : '0%'));
 
-			d3.selectAll('.count').text(d => {
+			$sel.selectAll('.count').text(d => {
 				if (d === 'highSchool') return '';
 				if (d === 'college') return '0 players';
 				return '0';
@@ -175,6 +175,8 @@ d3.selection.prototype.createFlow = function init() {
 		function updatePercent(d, level, top) {
 			if (level === 'college') d.coll = 3;
 			else d[level] = 3;
+
+
 
 			if (top === 1) {
 				topPassMap.get(level).passed.push(1);
