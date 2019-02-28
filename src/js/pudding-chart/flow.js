@@ -148,7 +148,7 @@ d3.selection.prototype.createFlow = function init() {
 			const y = mouse[1]
 			let rank = null
 
-			if (filter === "ranked" || filter === "top10"){
+			if (filter === "ranked" || filter === "top10" || filter === "skipCollege"){
 				rank = Math.round(scaleX.invert(x), 0)
 			}
 
