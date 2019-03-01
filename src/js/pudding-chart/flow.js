@@ -323,7 +323,31 @@ d3.selection.prototype.createFlow = function init() {
 				}
 				$context.font = `${14 * DPR}px "National 2 Narrow Web"`;
 				$context.textBaseline = 'hanging';
-				$context.textAlign = 'center';
+				let align = null
+				if (filter === 'ranked' || filter === 'top10' || filter === 'skipCollege'){
+					if (xPos >= width * 0.85) {
+						align = 'end'
+					} else if (xPos <= width * 0.15) {
+						align = 'start'
+					} else {align = 'center'}
+				} else if (filter === 'big4' || filter === 'none'){
+					if (top === 1){
+						if (xPos <= width * 0.15){
+							align = 'start'
+						} else if (xPos >= (width - stopSectionWidth - padding) * 0.9){
+							align = 'end'
+						} else {align = 'center'}
+					}
+					if (top === 0){
+						if (xPos >= width * 0.85){
+							align = 'end'
+						} else if (xPos <= width - stopSectionWidth + (width * 0.15)){
+							align = 'start'
+						} else {align = 'center'}
+					}
+				}
+
+				$context.textAlign = align;
 				if (d.annotate) {
 					$context.fillText(d.name, xPos, d.y + padding * DPR);
 					$context.beginPath();
