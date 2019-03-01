@@ -14,7 +14,7 @@ function cleanData(arr){
       draft: d.draft === "" ? "" : +d.draft,
       rookie: d.rookie === "" ? "" : +d.rookie,
       success: +d.success,
-      underRank: +d.top === 0 ? Math.random() : ""
+      underRank: +d.top === 0 ? Math.round(Math.random() * 100) / 100 : ""
     }
   })
 }

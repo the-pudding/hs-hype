@@ -88,6 +88,8 @@ d3.selection.prototype.createFlow = function init() {
 		// scales
 		const scaleX = d3.scaleLinear();
 		const scaleXUnderdogs = d3.scaleLinear();
+		const scaleXsvg = d3.scaleLinear();
+		const scaleXsvgU = d3.scaleLinear();
 
 		// dom elements
 		let $svg = null;
@@ -149,31 +151,72 @@ d3.selection.prototype.createFlow = function init() {
 			let rank = null
 
 			if (filter === "ranked" || filter === "top10" || filter === "skipCollege"){
-				rank = Math.round(scaleX.invert(x), 0)
+				rank = Math.round(scaleXsvg.invert(x), 0)
+
+				// find which level you're hovered over
+				const closestLevel = heightLevels.reduce(function(prev, curr) {
+						return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
+				})
+				const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / (height / DPR))
+				const tooltipData = data.filter(d => d.highest === key && d.rank === rank)
+
+				// update tooltip text
+				$tooltipPlayers.selectAll('li').remove()
+
+				const list = $tooltipPlayers.selectAll('li')
+					.data(tooltipData)
+					.enter()
+					.append('li')
+					.text(d => d.name)
+
+				const year = $tooltipTitle.selectAll('span')
+					.text(`#${rank}`)
+
+				// move circle
+				const circle = $svg.select('.tooltip__circle')
+					.attr('cx', scaleXsvg(rank))
+					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
 			}
 
-			const closestLevel = heightLevels.reduce(function(prev, curr) {
-					return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
-			})
-			const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / height)
-			const tooltipData = data.filter(d => d.highest === key && d.rank === rank)
+			if (filter === "none" || filter === "big4"){
+				if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
+					rank = Math.round(scaleXsvg.invert(x), 0)
+				}
+				else (rank = Math.round(scaleXsvgU.invert(x) * 100)/ 100)
+				// find level
+				const closestLevel = heightLevels.reduce(function(prev, curr) {
+						return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
+				})
+				const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / (height / DPR))
+				const tooltipData = data.filter(d => {
+					if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
+						return d.highest === key && d.rank === rank
+					} else return d.highest === key && d.underRank === rank
+				})
 
-			$tooltipPlayers.selectAll('li').remove()
+				// update tooltip text
+				$tooltipPlayers.selectAll('li').remove()
 
-			const list = $tooltipPlayers.selectAll('li')
-				.data(tooltipData)
-				.enter()
-				.append('li')
-				.text(d => d.name)
+				const list = $tooltipPlayers.selectAll('li')
+					.data(tooltipData)
+					.enter()
+					.append('li')
+					.text(d => d.name)
 
-			const year = $tooltipTitle.selectAll('span')
-				.text(`#${rank}`)
+				const year = $tooltipTitle.selectAll('span')
+					.text(d => x <= (width - stopSectionWidth - padding - marginRight) / DPR ? `#${rank}` : 'Unranked')
 
-			const circle = $svg.select('.tooltip__circle')
-				.attr('cx', scaleX(rank))
-				.attr('cy', height * breakPoints[key] + marginTop * DPR)
-			console.log({circle})
-				//.attr('transform', `translate(${scaleX(rank)}, ${height * d[key]})`)
+				// move circle
+				const circle = $svg.select('.tooltip__circle')
+					.attr('cx', d => {
+						if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
+							return scaleXsvg(rank)
+						} else return scaleXsvgU(rank)
+						})
+					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
+			}
+
+
 
 		}
 
@@ -533,7 +576,7 @@ d3.selection.prototype.createFlow = function init() {
 				const normalHeight = $sel.node().offsetHeight; // - marginTop - marginBottom
 				height = normalHeight * DPR;
 
-				heightLevels = bpKeys.map(d => height * breakPoints[d])
+				heightLevels = bpKeys.map(d => (height / DPR) * breakPoints[d])
 
 				$svg.attr('width', width / DPR).attr('height', height / DPR);
 
@@ -552,6 +595,11 @@ d3.selection.prototype.createFlow = function init() {
 						.clamp(true);
 
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
+
+					scaleXsvg
+						.range([marginLeft, (width / DPR) - marginRight])
+						.domain([1, 100])
+						.clamp(true)
 				} else if (filter === 'top10') {
 					scaleX
 						.range([marginLeft * DPR, width - marginRight * DPR])
@@ -559,6 +607,11 @@ d3.selection.prototype.createFlow = function init() {
 						.clamp(true);;
 
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
+
+					scaleXsvg
+						.range([marginLeft, (width / DPR) - marginRight])
+						.domain([1, 10])
+						.clamp(true)
 				} else {
 					scaleX
 						.range([
@@ -571,7 +624,15 @@ d3.selection.prototype.createFlow = function init() {
 					scaleXUnderdogs
 						.range([width - stopSectionWidth, width - marginRight * DPR])
 						.domain([0, 1])
-						.clamp(true);;
+
+					scaleXsvg
+						.range([marginLeft, ((width - stopSectionWidth - padding) / DPR) - marginRight])
+						.domain([1, 100])
+						.clamp(true)
+
+					scaleXsvgU
+						.range([(width - stopSectionWidth) / DPR, (width / DPR) - marginRight])
+						.domain([0, 1])
 				}
 
 				$bg
