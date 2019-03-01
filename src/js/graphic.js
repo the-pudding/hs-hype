@@ -21,6 +21,7 @@ function setupCharts() {
 		'Duke University',
 		'University of Kansas'
 	];
+	
 
 	let filteredData = null;
 	if (filter == 'ranked') filteredData = data.filter(d => d.top === 1);
