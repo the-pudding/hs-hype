@@ -20,9 +20,9 @@ d3.selection.prototype.createFlow = function init() {
 				a => a.link === d.link && a.filter === filter
 			)
 		}));
-		let $tooltip = d3.select(`.chart__tooltip-${filter}`)
-		let $tooltipTitle = $tooltip.select('.tooltip__title')
-		let $tooltipPlayers = $tooltip.select('.tooltip__players')
+		const $tooltip = d3.select(`.chart__tooltip-${filter}`)
+		const $tooltipTitle = $tooltip.select('.tooltip__title')
+		const $tooltipPlayers = $tooltip.select('.tooltip__players')
 
 
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
@@ -163,19 +163,20 @@ d3.selection.prototype.createFlow = function init() {
 				// update tooltip text
 				$tooltipPlayers.selectAll('li').remove()
 
-				const list = $tooltipPlayers.selectAll('li')
+				$tooltipPlayers.selectAll('li')
 					.data(tooltipData)
 					.enter()
 					.append('li')
 					.text(d => d.name)
 
-				const year = $tooltipTitle.selectAll('span')
+				$tooltipTitle.selectAll('span')
 					.text(`#${rank}`)
 
 				// move circle
-				const circle = $svg.select('.tooltip__circle')
+				$svg.select('.tooltip__circle')
 					.attr('cx', scaleXsvg(rank))
 					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
+					.classed('is-visible', true)
 			}
 
 			if (filter === "none" || filter === "big4"){
@@ -203,19 +204,20 @@ d3.selection.prototype.createFlow = function init() {
 					.append('li')
 					.text(d => d.name)
 
-				const year = $tooltipTitle.selectAll('span')
+				$tooltipTitle.selectAll('span')
 					.text(d => x <= (width - stopSectionWidth - padding - marginRight) / DPR ? `#${rank}` : 'Unranked')
 
 				// move circle
-				const circle = $svg.select('.tooltip__circle')
+				$svg.select('.tooltip__circle')
 					.attr('cx', d => {
 						if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
 							return scaleXsvg(rank)
 						} else return scaleXsvgU(rank)
 						})
 					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
+					.classed('is-visible', true)
 			}
-
+			$tooltip.classed('is-visible', true)
 
 
 		}
@@ -377,7 +379,10 @@ d3.selection.prototype.createFlow = function init() {
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
 
 
-				$svg.on('mousemove', generateTooltip)
+				$svg.on('mousemove', generateTooltip).on('mouseout', () => {
+					$tooltip.classed('is-visible', false)
+						$svg.select('.tooltip__circle').classed('is-visible', true)
+				})
 
 				$bg = $svg.append('g').attr('class', 'g-bg');
 

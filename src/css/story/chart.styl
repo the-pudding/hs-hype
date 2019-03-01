@@ -2,19 +2,38 @@
 	max-width $chart-width
 	margin 0 auto
 	margin-bottom 3rem
+	position relative
+	font-family $national
 
 .chart__tooltip
 	position absolute
-	width 17rem
+	width 14rem
 	display none
 	cursor pointer
 	transition 100ms opacity ease-in-out
+	top 0
+	right 0
+	transform translate(100%, 8.25rem)
+	padding-left 1rem
+	visibility hidden
+	&.is-visible
+		visibility visible
 	+mq('bp-7')
 		display block
 
+	.tooltip__title
+		text-transform uppercase
+		set-type-size('small')
+		font-weight 700
+		margin 0
+		&-rank
+			color $orange
+
+	li
+		set-type-size(root, false)
+
 .chart__meta
 	padding 0 1rem
-	font-family $national
 	margin 3rem auto 1.5rem auto
 	// max-width $column-width
 	text-align center
@@ -36,7 +55,6 @@
 
 
 	&-replay
-		font-family $national
 		background-color $bg
 		padding 0.25rem 0.5rem
 		border 2px solid $brown
@@ -63,6 +81,7 @@
 .chart__flow
 	height 500px
 	position relative
+	cursor crosshair
 	canvas
 		position absolute
 		z-index 200
@@ -77,6 +96,9 @@
 			stroke-width 1px
 			stroke $brown
 			fill none
+			display none
+			&.is-visible
+				display block
 	path
 		stroke-width 1px
 		fill none
