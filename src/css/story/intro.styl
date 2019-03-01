@@ -5,32 +5,34 @@
 	max-width 80rem
 
 	&__hed
-		max-width 60rem
+		max-width $column-width
 		margin 0 auto
-		text-align center
+		// text-align center
 		set-type-size('xxxxx-large')
+		line-height 1.1
 		font-weight 900
 		font-family: $national
 
 	&__dek
-		max-width 30rem
+		max-width $column-width
 		margin 0 auto
 		margin-top 1rem
-		text-align center
+		// text-align center
 		set-type-size('large', true)
 
 	&__line
-		display flex
-		max-width 30rem
+		max-width $column-width
 		margin 0 auto 3rem auto
 		font-family $national
-		align-items: baseline
+		p, time
+			display inline-block
+			margin-right 0.5rem
 
 	&__byline
 		max-width $column-width
 		margin 0 auto
 		margin-top 1rem
-		text-align center
+		// text-align center
 		set-type-size('root')
 
 
@@ -56,11 +58,11 @@
 
 		&--left
 			left 1rem
-			top 41rem
+			top 48.5rem
 		
 		&--right
 			right 1rem
-			top 55rem
+			top 62.5rem
 	
 	video
 		display block

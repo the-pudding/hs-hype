@@ -44,7 +44,7 @@ function setupFigureEnter() {
 	EnterView({
 		selector: '.chart__flow',
 		enter(el, i) {
-			console.log({ el });
+			// console.log({ el });
 			// pause other charts
 			Object.keys(charts).map(d => {
 				const val = charts[d];
@@ -71,7 +71,7 @@ function resize() {
 
 function handleVidEnter() {
 	const side = d3.select(this).attr('data-side');
-	console.log(side);
+	// console.log(side);
 	d3.select(`.intro .prose span[data-side="${side}"]`).classed(
 		'is-selected',
 		true
