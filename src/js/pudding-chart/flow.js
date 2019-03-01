@@ -585,7 +585,8 @@ d3.selection.prototype.createFlow = function init() {
 						.append('text')
 						.text('not in Top 100')
 						// .attr('alignment-baseline', 'hanging')
-						.attr('text-anchor', 'middle');
+						.attr('text-anchor', 'middle')
+						.attr('class', 'underdog-label');
 					//
 					// underdogAnn
 					//   .append('line')
@@ -758,7 +759,7 @@ d3.selection.prototype.createFlow = function init() {
 						.attr(
 							'transform',
 							d =>
-								`translate(${scaleXUnderdogs(0.5) / DPR}, ${-(rectHeight / 2)})`
+								`translate(${scaleXUnderdogs(0.5) / DPR}, ${-(rectHeight / 2) / DPR})`
 						);
 
 					// underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
