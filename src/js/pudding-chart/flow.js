@@ -20,11 +20,10 @@ d3.selection.prototype.createFlow = function init() {
 				a => a.link === d.link && a.filter === filter
 			)
 		}));
-		const $tooltip = d3.select(`.chart__tooltip-${filter}`)
-		const $tooltipTitle = $tooltip.select('.tooltip__title')
-		const $tooltipPlayers = $tooltip.select('.tooltip__players')
-		let mobile = false
-
+		const $tooltip = d3.select(`.chart__tooltip-${filter}`);
+		const $tooltipTitle = $tooltip.select('.tooltip__title');
+		const $tooltipPlayers = $tooltip.select('.tooltip__players');
+		let mobile = false;
 
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
 
@@ -48,7 +47,7 @@ d3.selection.prototype.createFlow = function init() {
 
 		const topCount = masterData.filter(d => d.top === 1).length;
 		const underCount = masterData.filter(d => d.top === 0).length;
-		let heightLevels = null
+		let heightLevels = null;
 
 		const breakPoints = {
 			highSchool: 0 / 8,
@@ -144,83 +143,99 @@ d3.selection.prototype.createFlow = function init() {
 			allstar: {}
 		};
 
+		function generateTooltip() {
+			const mouse = d3.mouse(this);
+			const x = mouse[0];
+			const y = mouse[1];
+			let rank = null;
 
-		function generateTooltip(){
-			const mouse = d3.mouse(this)
-			const x = mouse[0]
-			const y = mouse[1]
-			let rank = null
-
-			if (filter === "ranked" || filter === "top10" || filter === "skipCollege"){
-				rank = Math.round(scaleXsvg.invert(x), 0)
+			if (
+				filter === 'ranked' ||
+				filter === 'top10' ||
+				filter === 'skipCollege'
+			) {
+				rank = Math.round(scaleXsvg.invert(x), 0);
 
 				// find which level you're hovered over
-				const closestLevel = heightLevels.reduce(function(prev, curr) {
-						return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
-				})
-				const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / (height / DPR))
-				const tooltipData = data.filter(d => d.highest === key && d.rank === rank)
+				const closestLevel = heightLevels.reduce((prev, curr) =>
+					Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev
+				);
+				const { key } = d3
+					.entries(breakPoints)
+					.find(d => d.value === closestLevel / (height / DPR));
+				const tooltipData = data.filter(
+					d => d.highest === key && d.rank === rank
+				);
 
 				// update tooltip text
-				$tooltipPlayers.selectAll('li').remove()
+				$tooltipPlayers.selectAll('li').remove();
 
-				$tooltipPlayers.selectAll('li')
+				$tooltipPlayers
+					.selectAll('li')
 					.data(tooltipData)
 					.enter()
 					.append('li')
-					.text(d => d.name)
+					.text(d => d.name);
 
-				$tooltipTitle.selectAll('span')
-					.text(`#${rank}`)
+				$tooltipTitle.selectAll('span').text(`#${rank}`);
 
 				// move circle
-				$svg.select('.tooltip__circle')
+				$svg
+					.select('.tooltip__circle')
 					.attr('cx', scaleXsvg(rank))
-					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
-					.classed('is-visible', true)
+					.attr('cy', (height * breakPoints[key]) / DPR + marginTop)
+					.classed('is-visible', true);
 			}
 
-			if (filter === "none" || filter === "big4"){
+			if (filter === 'none' || filter === 'big4') {
 				if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
-					rank = Math.round(scaleXsvg.invert(x), 0)
-				}
-				else (rank = Math.round(scaleXsvgU.invert(x) * 100)/ 100)
+					rank = Math.round(scaleXsvg.invert(x), 0);
+				} else rank = Math.round(scaleXsvgU.invert(x) * 100) / 100;
 				// find level
-				const closestLevel = heightLevels.reduce(function(prev, curr) {
-						return (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev)
-				})
-				const {key} = d3.entries(breakPoints).find(d => d.value === closestLevel / (height / DPR))
+				const closestLevel = heightLevels.reduce((prev, curr) =>
+					Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev
+				);
+				const { key } = d3
+					.entries(breakPoints)
+					.find(d => d.value === closestLevel / (height / DPR));
 				const tooltipData = data.filter(d => {
 					if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
-						return d.highest === key && d.rank === rank
-					} else return d.highest === key && d.underRank === rank
-				})
+						return d.highest === key && d.rank === rank;
+					}
+					return d.highest === key && d.underRank === rank;
+				});
 
 				// update tooltip text
-				$tooltipPlayers.selectAll('li').remove()
+				$tooltipPlayers.selectAll('li').remove();
 
-				const list = $tooltipPlayers.selectAll('li')
+				const list = $tooltipPlayers
+					.selectAll('li')
 					.data(tooltipData)
 					.enter()
 					.append('li')
-					.text(d => d.name)
+					.text(d => d.name);
 
-				$tooltipTitle.selectAll('span')
-					.text(d => x <= (width - stopSectionWidth - padding - marginRight) / DPR ? `#${rank}` : 'Unranked')
+				$tooltipTitle
+					.selectAll('span')
+					.text(d =>
+						x <= (width - stopSectionWidth - padding - marginRight) / DPR
+							? `#${rank}`
+							: 'Unranked'
+					);
 
 				// move circle
-				$svg.select('.tooltip__circle')
+				$svg
+					.select('.tooltip__circle')
 					.attr('cx', d => {
 						if (x <= (width - stopSectionWidth - padding - marginRight) / DPR) {
-							return scaleXsvg(rank)
-						} else return scaleXsvgU(rank)
-						})
-					.attr('cy', ((height * breakPoints[key]) / DPR) + marginTop)
-					.classed('is-visible', true)
+							return scaleXsvg(rank);
+						}
+						return scaleXsvgU(rank);
+					})
+					.attr('cy', (height * breakPoints[key]) / DPR + marginTop)
+					.classed('is-visible', true);
 			}
-			$tooltip.classed('is-visible', true)
-
-
+			$tooltip.classed('is-visible', true);
 		}
 
 		function resetPercent() {
@@ -263,8 +278,6 @@ d3.selection.prototype.createFlow = function init() {
 		function updatePercent(d, level, top) {
 			if (level === 'college') d.coll = 3;
 			else d[level] = 3;
-
-
 
 			if (top === 1) {
 				topPassMap.get(level).passed.push(1);
@@ -324,39 +337,47 @@ d3.selection.prototype.createFlow = function init() {
 				}
 				$context.font = `${14 * DPR}px "National 2 Narrow Web"`;
 				$context.textBaseline = 'hanging';
-				let align = null
-				if (filter === 'ranked' || filter === 'top10' || filter === 'skipCollege'){
+				let align = 'start';
+				if (
+					filter === 'ranked' ||
+					filter === 'top10' ||
+					filter === 'skipCollege'
+				) {
 					if (xPos >= width * 0.85) {
-						align = 'end'
+						align = 'end';
 					} else if (xPos <= width * 0.15) {
-						align = 'start'
-					} else {align = 'center'}
-				} else if (filter === 'big4' || filter === 'none'){
-					if (top === 1){
-						if (xPos <= width * 0.15){
-							align = 'start'
-						} else if (xPos >= (width - stopSectionWidth - padding) * 0.9){
-							align = 'end'
-						} else {align = 'center'}
+						align = 'start';
+					} else {
+						align = 'center';
 					}
-					if (top === 0){
-						if (xPos >= width * 0.85){
-							align = 'end'
-						} else if (xPos <= width - stopSectionWidth + (width * 0.15)){
-							align = 'start'
-						} else {align = 'center'}
+				} else if (filter === 'big4' || filter === 'none') {
+					if (d.top === 1) {
+						if (xPos <= width * 0.15) {
+							align = 'start';
+						} else if (xPos >= (width - stopSectionWidth - padding) * 0.9) {
+							align = 'end';
+						} else {
+							align = 'center';
+						}
+					}
+					if (d.top === 0) {
+						if (xPos >= width * 0.85) {
+							align = 'end';
+						} else if (xPos <= width - stopSectionWidth + width * 0.15) {
+							align = 'start';
+						} else {
+							align = 'center';
+						}
 					}
 				}
-
 				$context.textAlign = align;
 				if (d.annotate) {
-					if (mobile === false){
+					if (mobile === false) {
 						$context.fillText(d.name, xPos, d.y + padding * DPR);
 						$context.beginPath();
 						$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI);
 						$context.stroke();
-					}
-					else if (mobile === true && d.name != "Stephen Curry"){
+					} else if (mobile === true && d.name !== 'Stephen Curry') {
 						$context.fillText(d.name, xPos, d.y + padding * DPR);
 						$context.beginPath();
 						$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI);
@@ -398,7 +419,7 @@ d3.selection.prototype.createFlow = function init() {
 			drawCircles();
 			if (t >= duration + maxDelay) {
 				timer.stop();
-				if (mobile === false) $sel.classed('is-clickable', true)
+				if (mobile === false) $sel.classed('is-clickable', true);
 			}
 		}
 
@@ -412,17 +433,17 @@ d3.selection.prototype.createFlow = function init() {
 
 				$svg = $sel.append('svg').attr('class', 'pudding-chart');
 
-
 				$svg.on('mousemove', generateTooltip).on('mouseout', () => {
-					$tooltip.classed('is-visible', false)
-						$svg.select('.tooltip__circle').classed('is-visible', true)
-				})
+					$tooltip.classed('is-visible', false);
+					$svg.select('.tooltip__circle').classed('is-visible', true);
+				});
 
 				$bg = $svg.append('g').attr('class', 'g-bg');
 
-				$svg.append('circle')
+				$svg
+					.append('circle')
 					.attr('class', 'tooltip__circle')
-					.attr('r', radius + 2)
+					.attr('r', radius + 2);
 
 				const $allLabels = $svg.append('g').attr('class', 'g-labels');
 
@@ -616,11 +637,11 @@ d3.selection.prototype.createFlow = function init() {
 				const normalHeight = $sel.node().offsetHeight; // - marginTop - marginBottom
 				height = normalHeight * DPR;
 
-				if (window.innerWidth <= 1152) mobile = true
-				let inner = window.innerWidth
-				console.log({inner, mobile})
+				if (window.innerWidth <= 1152) mobile = true;
+				const inner = window.innerWidth;
+				// console.log({ inner, mobile });
 
-				heightLevels = bpKeys.map(d => (height / DPR) * breakPoints[d])
+				heightLevels = bpKeys.map(d => (height / DPR) * breakPoints[d]);
 
 				$svg.attr('width', width / DPR).attr('height', height / DPR);
 
@@ -641,21 +662,21 @@ d3.selection.prototype.createFlow = function init() {
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
 
 					scaleXsvg
-						.range([marginLeft, (width / DPR) - marginRight])
+						.range([marginLeft, width / DPR - marginRight])
 						.domain([1, 100])
-						.clamp(true)
+						.clamp(true);
 				} else if (filter === 'top10') {
 					scaleX
 						.range([marginLeft * DPR, width - marginRight * DPR])
 						.domain([1, 10])
-						.clamp(true);;
+						.clamp(true);
 
 					scaleXUnderdogs.range([0, 0]).domain([0, 0]);
 
 					scaleXsvg
-						.range([marginLeft, (width / DPR) - marginRight])
+						.range([marginLeft, width / DPR - marginRight])
 						.domain([1, 10])
-						.clamp(true)
+						.clamp(true);
 				} else {
 					scaleX
 						.range([
@@ -663,20 +684,26 @@ d3.selection.prototype.createFlow = function init() {
 							width - stopSectionWidth - padding - marginRight * DPR
 						])
 						.domain([1, 100])
-						.clamp(true);;
+						.clamp(true);
 
 					scaleXUnderdogs
 						.range([width - stopSectionWidth, width - marginRight * DPR])
-						.domain([0, 1])
+						.domain([0, 1]);
 
 					scaleXsvg
-						.range([marginLeft, ((width - stopSectionWidth - padding) / DPR) - marginRight])
+						.range([
+							marginLeft,
+							(width - stopSectionWidth - padding) / DPR - marginRight
+						])
 						.domain([1, 100])
-						.clamp(true)
+						.clamp(true);
 
 					scaleXsvgU
-						.range([(width - stopSectionWidth) / DPR, (width / DPR) - marginRight])
-						.domain([0, 1])
+						.range([
+							(width - stopSectionWidth) / DPR,
+							width / DPR - marginRight
+						])
+						.domain([0, 1]);
 				}
 
 				$bg
@@ -773,7 +800,8 @@ d3.selection.prototype.createFlow = function init() {
 						.attr(
 							'transform',
 							d =>
-								`translate(${scaleXUnderdogs(0.5) / DPR}, ${-(rectHeight / 2) / DPR})`
+								`translate(${scaleXUnderdogs(0.5) / DPR}, ${-(rectHeight / 2) /
+									DPR})`
 						);
 
 					// underdogAnn.selectAll('line').attr('x2', stopSectionWidth - radius)
@@ -820,7 +848,7 @@ d3.selection.prototype.createFlow = function init() {
 			// update scales and render chart
 			render() {
 				if (timer) timer.stop();
-				$sel.classed('is-clickable', false)
+				$sel.classed('is-clickable', false);
 				setupCircleData();
 				resetPercent();
 				timer = d3.timer(moveCircles);
