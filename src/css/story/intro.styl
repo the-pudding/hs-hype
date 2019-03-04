@@ -8,10 +8,12 @@
 		max-width $column-width
 		margin 0 auto
 		// text-align center
-		set-type-size('xxxxx-large')
+		set-type-size('xxx-large')
 		line-height 1.1
 		font-weight 900
-		font-family: $national
+		font-family $national
+		+mq('bp-4')
+			set-type-size('xxxxx-large')
 
 	&__dek
 		max-width $column-width
@@ -22,10 +24,13 @@
 
 	&__line
 		max-width $column-width
-		margin 0 auto 3rem auto
+		margin 0 auto
+		margin-top 1rem
+		margin-bottom 3rem
 		font-family $national
 		p, time
 			display inline-block
+			margin 0
 			margin-right 0.5rem
 
 	&__byline
@@ -58,11 +63,11 @@
 
 		&--left
 			left 1rem
-			top 48.5rem
+			top 47rem
 		
 		&--right
 			right 1rem
-			top 62.5rem
+			top 61rem
 	
 	video
 		display block
