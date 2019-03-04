@@ -454,7 +454,7 @@ d3.selection.prototype.createFlow = function init() {
 						if (d === 'great') return 'great';
 						if (d === 'allstar') return 'superstar';
 						if (d === 'draft') return 'drafted';
-						if (d === 'rookie') return '< 3 years in NBA';
+						if (d === 'rookie') return '< 2 years in NBA';
 						return d;
 					})
 					.attr('alignment-baseline', 'middle')
