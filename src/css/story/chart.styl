@@ -92,6 +92,7 @@
 		// border 2px solid lighten($brown, 30)
 		box-shadow 0 0 3px $brown
 		border-radius 6px
+		pointer-events: none;
 		.tooltip__circle
 			stroke-width 1px
 			stroke $brown
@@ -99,6 +100,11 @@
 			display none
 			&.is-visible
 				display block
+
+	&.is-clickable
+		svg
+			pointer-events all
+
 	path
 		stroke-width 1px
 		fill none

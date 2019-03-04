@@ -23,6 +23,7 @@ d3.selection.prototype.createFlow = function init() {
 		const $tooltip = d3.select(`.chart__tooltip-${filter}`)
 		const $tooltipTitle = $tooltip.select('.tooltip__title')
 		const $tooltipPlayers = $tooltip.select('.tooltip__players')
+		let mobile = false
 
 
 		data.sort((a, b) => d3.ascending(a.annotate, b.annotate));
@@ -349,10 +350,18 @@ d3.selection.prototype.createFlow = function init() {
 
 				$context.textAlign = align;
 				if (d.annotate) {
-					$context.fillText(d.name, xPos, d.y + padding * DPR);
-					$context.beginPath();
-					$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI);
-					$context.stroke();
+					if (mobile === false){
+						$context.fillText(d.name, xPos, d.y + padding * DPR);
+						$context.beginPath();
+						$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI);
+						$context.stroke();
+					}
+					else if (mobile === true && d.name != "Stephen Curry"){
+						$context.fillText(d.name, xPos, d.y + padding * DPR);
+						$context.beginPath();
+						$context.arc(xPos, d.y, (radius + 1) * DPR, 0, 2 * Math.PI);
+						$context.stroke();
+					}
 				}
 			});
 		}
@@ -389,6 +398,7 @@ d3.selection.prototype.createFlow = function init() {
 			drawCircles();
 			if (t >= duration + maxDelay) {
 				timer.stop();
+				if (mobile === false) $sel.classed('is-clickable', true)
 			}
 		}
 
@@ -444,7 +454,7 @@ d3.selection.prototype.createFlow = function init() {
 						if (d === 'great') return 'great';
 						if (d === 'allstar') return 'superstar';
 						if (d === 'draft') return 'drafted';
-						if (d === 'rookie') return '< 2 years in NBA';
+						if (d === 'rookie') return '< 3 years in NBA';
 						return d;
 					})
 					.attr('alignment-baseline', 'middle')
@@ -605,6 +615,10 @@ d3.selection.prototype.createFlow = function init() {
 				width = normalWidth * DPR;
 				const normalHeight = $sel.node().offsetHeight; // - marginTop - marginBottom
 				height = normalHeight * DPR;
+
+				if (window.innerWidth <= 1152) mobile = true
+				let inner = window.innerWidth
+				console.log({inner, mobile})
 
 				heightLevels = bpKeys.map(d => (height / DPR) * breakPoints[d])
 
@@ -806,6 +820,7 @@ d3.selection.prototype.createFlow = function init() {
 			// update scales and render chart
 			render() {
 				if (timer) timer.stop();
+				$sel.classed('is-clickable', false)
 				setupCircleData();
 				resetPercent();
 				timer = d3.timer(moveCircles);
